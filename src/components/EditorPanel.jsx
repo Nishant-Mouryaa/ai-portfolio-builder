@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
-import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import {
+  Container,
+  Form,
+  Button,
+  Row,
+  Col,
+  Alert,
+  Spinner,
+} from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion, AnimatePresence } from 'framer-motion';
-
-/* 
-  Debounce helper: delays invoking `func` until after `delay` ms have elapsed
-  since the last time it was invoked.
-*/
-const debounce = (func, delay) => {
-  let timer;
-  return (...args) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, delay);
-  };
-};
+// Import the AI module hook (adjust the path as needed)
+import { useAIModule } from '../hooks/AIModule';
 
 // Component for editing individual projects with AI description generation.
 const ProjectEditor = ({
@@ -54,14 +50,22 @@ const ProjectEditor = ({
               type="text"
               placeholder="Enter project description"
               value={project.description}
-              onChange={(e) => onProjectChange(index, 'description', e.target.value)}
+              onChange={(e) =>
+                onProjectChange(index, 'description', e.target.value)
+              }
             />
           </Form.Group>
           <div className="mt-2">
-            <Button variant="secondary" size="sm" onClick={() => onGenerateAI(index)}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onGenerateAI(index)}
+            >
               Generate AI Description
             </Button>
-            {aiLoading && <Spinner animation="border" size="sm" className="ms-2" />}
+            {aiLoading && (
+              <Spinner animation="border" size="sm" className="ms-2" />
+            )}
           </div>
           {aiSuggestions && aiSuggestions.length > 0 && (
             <div className="mt-2">
@@ -93,13 +97,14 @@ const EditorPanel = () => {
   const { userData, setUserData } = usePortfolio();
   const [showAlert, setShowAlert] = useState(false);
 
-  // State for AI bio generation.
+  // Local state for managing AI suggestion loading and results.
   const [aiBioLoading, setAiBioLoading] = useState(false);
   const [aiBioSuggestions, setAiBioSuggestions] = useState([]);
-
-  // State for AI project description generation.
-  // Mapping: project index => { loading: boolean, suggestions: array }
+  // aiProjectState maps project index to an object: { loading: boolean, suggestions: [] }
   const [aiProjectState, setAiProjectState] = useState({});
+
+  // Import AI generation functions from the AIModule hook.
+  const { generateAIBio, generateAIProjectDescription } = useAIModule();
 
   if (!userData) {
     return <p>Loading...</p>;
@@ -141,31 +146,17 @@ const EditorPanel = () => {
   };
 
   // -----------------------------
-  // AI Generation using Hugging Face (with debouncing)
+  // AI Generation Integration via AIModule
   // -----------------------------
-  if (!import.meta.env.VITE_REACT_APP_HF_API_KEY) {
-    console.error('Missing VITE_REACT_APP_HF_API_KEY in environment variables');
-  }
-
-  // Function to generate AI bio.
-  const generateAIBio = async () => {
+  // Generate AI bio suggestions using the imported function.
+  const handleGenerateAIBio = async () => {
     if (!userData.profession) return;
     setAiBioLoading(true);
     try {
-      const response = await fetch("https://api-inference.huggingface.co/models/facebook/blenderbot-3B", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_REACT_APP_HF_API_KEY}`,
-        },
-        body: JSON.stringify({
-          inputs: `Generate a short, professional bio for a ${userData.profession}.`,
-          parameters: { num_return_sequences: 3 },
-        }),
+      const suggestions = await generateAIBio({
+        profession: userData.profession,
+        currentBio: userData.bio,
       });
-      const data = await response.json();
-      // Ensure the API response is an array.
-      const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
       setAiBioSuggestions(suggestions);
     } catch (error) {
       console.error('Error generating AI bio:', error);
@@ -174,35 +165,32 @@ const EditorPanel = () => {
     }
   };
 
-  // Function to generate AI project description.
-  const generateAIProjectDescription = async (index) => {
+  // Generate AI project description suggestions for a specific project.
+  const handleGenerateAIProjectDescription = async (index) => {
     const project = userData.projects[index];
     if (!project.title) return;
-    setAiProjectState((prev) => ({ ...prev, [index]: { loading: true, suggestions: [] } }));
+    // Set loading state for this project.
+    setAiProjectState((prev) => ({
+      ...prev,
+      [index]: { loading: true, suggestions: [] },
+    }));
     try {
-      const response = await fetch("https://api-inference.huggingface.co/models/bigscience/bloom", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_REACT_APP_HF_API_KEY}`,
-        },
-        body: JSON.stringify({
-          inputs: `Generate a project description for a project titled "${project.title}".`,
-          parameters: { num_return_sequences: 3 },
-        }),
+      const suggestions = await generateAIProjectDescription({
+        title: project.title,
+        currentDescription: project.description,
       });
-      const data = await response.json();
-      const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
-      setAiProjectState((prev) => ({ ...prev, [index]: { loading: false, suggestions } }));
+      setAiProjectState((prev) => ({
+        ...prev,
+        [index]: { loading: false, suggestions },
+      }));
     } catch (error) {
       console.error(`Error generating AI description for project ${index}:`, error);
-      setAiProjectState((prev) => ({ ...prev, [index]: { loading: false, suggestions: [] } }));
+      setAiProjectState((prev) => ({
+        ...prev,
+        [index]: { loading: false, suggestions: [] },
+      }));
     }
   };
-
-  // Wrap AI generation functions with debouncing (300ms).
-  const debouncedGenerateAIBio = debounce(generateAIBio, 300);
-  const debouncedGenerateAIProjectDescription = debounce(generateAIProjectDescription, 300);
 
   // Accept an AI bio suggestion.
   const acceptAIBioSuggestion = (suggestion) => {
@@ -216,7 +204,10 @@ const EditorPanel = () => {
       i === index ? { ...project, description: suggestion } : project
     );
     setUserData((prev) => ({ ...prev, projects: updatedProjects }));
-    setAiProjectState((prev) => ({ ...prev, [index]: { ...prev[index], suggestions: [] } }));
+    setAiProjectState((prev) => ({
+      ...prev,
+      [index]: { ...prev[index], suggestions: [] },
+    }));
   };
 
   // -----------------------------
@@ -277,7 +268,7 @@ const EditorPanel = () => {
             placeholder="Enter a brief bio"
           />
           <div className="mt-2">
-            <Button variant="secondary" size="sm" onClick={debouncedGenerateAIBio}>
+            <Button variant="secondary" size="sm" onClick={handleGenerateAIBio}>
               Generate AI Bio
             </Button>
             {aiBioLoading && <Spinner animation="border" size="sm" className="ms-2" />}
@@ -308,7 +299,7 @@ const EditorPanel = () => {
               index={index}
               onProjectChange={handleProjectChange}
               onRemoveProject={removeProject}
-              onGenerateAI={() => debouncedGenerateAIProjectDescription(index)}
+              onGenerateAI={() => handleGenerateAIProjectDescription(index)}
               aiLoading={aiProjectState[index]?.loading}
               aiSuggestions={aiProjectState[index]?.suggestions}
               onAcceptAISuggestion={acceptAIProjectSuggestion}

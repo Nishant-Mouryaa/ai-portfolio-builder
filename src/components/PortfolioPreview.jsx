@@ -1,13 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Container, Card, Spinner } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion } from 'framer-motion';
 
-// Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1 }
+  visible: { opacity: 1 },
 };
 
 const projectVariants = {
@@ -15,11 +13,10 @@ const projectVariants = {
   visible: (i) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, delay: i * 0.1 }
-  })
+    transition: { duration: 0.3, delay: i * 0.1 },
+  }),
 };
 
-// Component to display individual projects
 const ProjectItem = ({ project, index }) => (
   <motion.div
     custom={index}
@@ -32,15 +29,6 @@ const ProjectItem = ({ project, index }) => (
     <p>{project.description}</p>
   </motion.div>
 );
-
-ProjectItem.propTypes = {
-  project: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    title: PropTypes.string,
-    description: PropTypes.string
-  }).isRequired,
-  index: PropTypes.number.isRequired
-};
 
 const PortfolioPreview = () => {
   const { userData, settings } = usePortfolio();
@@ -58,17 +46,17 @@ const PortfolioPreview = () => {
     );
   }
 
-  // Destructure user data for a cleaner JSX
   const { name, profession, bio, projects, selectedTemplate } = userData;
 
-  // Apply customization settings
+  // Apply customization settings including font size.
   const previewStyle = {
     fontFamily: settings.font,
+    fontSize: `${settings.fontSize}px`,
     backgroundColor: settings.backgroundColor,
-    transition: 'all 0.3s ease'
+    transition: 'all 0.3s ease',
   };
 
-  // Optionally override the preview's look based on the selected template.
+  // Optionally override the preview look based on a selected template.
   let templateStyle = {};
   if (selectedTemplate) {
     switch (selectedTemplate.name) {
@@ -86,9 +74,8 @@ const PortfolioPreview = () => {
     }
   }
 
-  // Optionally, override the text color for headings with the primary color.
   const headingStyle = {
-    color: settings.primaryColor
+    color: settings.primaryColor,
   };
 
   return (
@@ -105,7 +92,6 @@ const PortfolioPreview = () => {
             <h2 style={headingStyle}>{name || 'Your Name'}</h2>
             <h5 style={headingStyle}>{profession || 'Your Profession'}</h5>
             <p>{bio || 'This is your portfolio bio. Edit it to add details about yourself.'}</p>
-
             <h4 className="mt-4">Projects</h4>
             {Array.isArray(projects) && projects.length > 0 ? (
               projects.map((project, index) => (
