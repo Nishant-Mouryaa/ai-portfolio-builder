@@ -35,77 +35,70 @@ export const useAIModule = () => {
 
   // --- AI Generation Functions ---
 
+  /**
+   * Generate AI bio suggestions.
+   * If a current bio exists, include it in the prompt for context.
+   * Returns a promise that resolves to an array of suggestions.
+   */
   const generateAIBio = async ({ profession, currentBio = '' }) => {
-    const prompt = `
-    You are an AI expert in writing professional bios. Your job is to write a high-quality, engaging, and professional bio.
-    - **Profession**: ${profession}
-    - **Current Bio**: ${currentBio || "No bio provided"}
-    - **Tone**: Professional, engaging, concise
-    - **Word Limit**: 40-60 words
-    - **Example Output**: "John is a full-stack developer with 5+ years of experience in JavaScript, React, and Node.js. Passionate about building scalable web applications and improving user experience."
-    Generate **3 variations** of the professional bio.
-    `;
-
+    const prompt = currentBio
+      ? `Improve and professionalize this bio for a ${profession}: "${currentBio}". Generate 3 variations.`
+      : `Generate a short, professional bio for a ${profession}. Provide 3 variations.`;
     try {
-        const response = await fetch(
-            "https://api-inference.huggingface.co/models/bigscience/bloomz-7b1", // Switch to a better model
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`,
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: { num_return_sequences: 3 },
-                }),
-            }
-        );
-        const data = await response.json();
-        const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
-        return suggestions;
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/distilgpt2", // Replace with your model endpoint for bios.
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            inputs: prompt,
+            parameters: { num_return_sequences: 3 },
+          }),
+        }
+      );
+      const data = await response.json();
+      const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
+      return suggestions;
     } catch (error) {
-        console.error('Error generating AI bio:', error);
-        return [];
+      console.error('Error generating AI bio:', error);
+      return [];
     }
-};
+  };
 
-
-const generateAIProjectDescription = async ({ title, currentDescription = '' }) => {
-    const prompt = `
-    You are an AI specialized in writing compelling project descriptions. 
-    - **Project Title**: ${title}
-    - **Current Description**: ${currentDescription || "No description provided"}
-    - **Goal**: Write a clear, professional, and engaging project description.
-    - **Word Limit**: 40-80 words
-    - **Example Output**: "Developed a modern e-commerce website using React and Node.js, implementing a fast and secure payment gateway with Stripe. Enhanced user experience through an optimized UI, leading to a 20% increase in conversions."
-    Generate **3 variations** of the project description.
-    `;
-
+  /**
+   * Generate AI project description suggestions.
+   * If a current description exists, include it in the prompt for context.
+   */
+  const generateAIProjectDescription = async ({ title, currentDescription = '' }) => {
+    const prompt = currentDescription
+      ? `Improve this project description for a project titled "${title}": "${currentDescription}". Generate 3 improved variations.`
+      : `Generate a project description for a project titled "${title}". Provide 3 variations.`;
     try {
-        const response = await fetch(
-            "https://api-inference.huggingface.co/models/facebook/opt-1.3b", // Better model for text generation
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`,
-                },
-                body: JSON.stringify({
-                    inputs: prompt,
-                    parameters: { num_return_sequences: 3 },
-                }),
-            }
-        );
-        const data = await response.json();
-        const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
-        return suggestions;
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/distilgpt2", // Replace with your model endpoint for project descriptions.
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            inputs: prompt,
+            parameters: { num_return_sequences: 3 },
+          }),
+        }
+      );
+      const data = await response.json();
+      const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
+      return suggestions;
     } catch (error) {
-        console.error('Error generating AI project description:', error);
-        return [];
+      console.error('Error generating AI project description:', error);
+      return [];
     }
-};
-
+  };
 
   /**
    * Generate AI suggestions for portfolio structure based on the user's profession.
@@ -165,4 +158,3 @@ const generateAIProjectDescription = async ({ title, currentDescription = '' }) 
     feedback,
   };
 };
- 
