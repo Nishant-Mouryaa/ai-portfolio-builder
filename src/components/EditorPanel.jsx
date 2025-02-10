@@ -11,7 +11,7 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion, AnimatePresence } from 'framer-motion';
 // Import the AI module hook (adjust the path as needed)
-import { useAIModule } from '../AIModule';
+import { useAIModule } from '../hooks/AIModule';
 
 // Component for editing individual projects with AI description generation.
 const ProjectEditor = ({
