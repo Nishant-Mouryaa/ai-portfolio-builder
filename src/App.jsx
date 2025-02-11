@@ -6,6 +6,8 @@ import TemplateSelector from './components/TemplateSelector';
 import CustomizationPanel from './components/CustomizationPanel';
 import { PortfolioProvider } from './context/PortfolioContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { ThemeProvider } from './context/ThemeContext';
+import './App.css';
 
 // A placeholder for the AI Content Generator component.
 const AIContentGenerator = () => (
@@ -47,6 +49,7 @@ const App = () => {
   };
 
   return (
+    <ThemeProvider>
     <PortfolioProvider>
       {/* 
           Using a responsive flex container with explicit order:
@@ -69,6 +72,7 @@ const App = () => {
         </div>
       </div>
     </PortfolioProvider>
+    </ThemeProvider>
   );
 };
 

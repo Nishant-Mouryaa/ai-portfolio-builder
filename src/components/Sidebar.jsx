@@ -17,6 +17,7 @@ import {
   FaTimes,
 } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
+import ThemeToggle from './ThemeToggle';
 
 const Sidebar = ({ onSelectOption }) => {
   const { userData } = usePortfolio() || {};
@@ -155,6 +156,7 @@ const Sidebar = ({ onSelectOption }) => {
                 <FaSave className="me-2" size={18} />
                 Publish Portfolio
               </Button>
+              <ThemeToggle />
             </>
           )}
         </div>
