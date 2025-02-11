@@ -1,20 +1,24 @@
-import React, { useState } from 'react';
-import {
-  Container,
-  Form,
-  Button,
-  Row,
-  Col,
-  Alert,
-  Spinner,
-} from 'react-bootstrap';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
+import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion, AnimatePresence } from 'framer-motion';
-// Import the AI module hook (adjust the path as needed)
-import { useAIModule } from '../hooks/AIModule';
 
-// Component for editing individual projects with AI description generation.
-const ProjectEditor = ({
+/**
+ * Custom hook that returns a debounced version of a callback.
+ */
+function useDebouncedCallback(callback, delay) {
+  const timer = useRef(null);
+  
+  return useCallback((...args) => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  }, [callback, delay]);
+}
+
+// Memoized ProjectEditor to prevent unnecessary re-renders.
+const ProjectEditor = React.memo(({
   project,
   index,
   onProjectChange,
@@ -50,22 +54,14 @@ const ProjectEditor = ({
               type="text"
               placeholder="Enter project description"
               value={project.description}
-              onChange={(e) =>
-                onProjectChange(index, 'description', e.target.value)
-              }
+              onChange={(e) => onProjectChange(index, 'description', e.target.value)}
             />
           </Form.Group>
           <div className="mt-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onGenerateAI(index)}
-            >
+            <Button variant="secondary" size="sm" onClick={() => onGenerateAI(index)}>
               Generate AI Description
             </Button>
-            {aiLoading && (
-              <Spinner animation="border" size="sm" className="ms-2" />
-            )}
+            {aiLoading && <Spinner animation="border" size="sm" className="ms-2" />}
           </div>
           {aiSuggestions && aiSuggestions.length > 0 && (
             <div className="mt-2">
@@ -91,124 +87,143 @@ const ProjectEditor = ({
       </Row>
     </motion.div>
   );
-};
+});
 
 const EditorPanel = () => {
   const { userData, setUserData } = usePortfolio();
   const [showAlert, setShowAlert] = useState(false);
 
-  // Local state for managing AI suggestion loading and results.
+  // State for AI bio generation.
   const [aiBioLoading, setAiBioLoading] = useState(false);
   const [aiBioSuggestions, setAiBioSuggestions] = useState([]);
-  // aiProjectState maps project index to an object: { loading: boolean, suggestions: [] }
+
+  // State for AI project description generation.
+  // Mapping: project index => { loading: boolean, suggestions: array }
   const [aiProjectState, setAiProjectState] = useState({});
 
-  // Import AI generation functions from the AIModule hook.
-  const { generateAIBio, generateAIProjectDescription } = useAIModule();
+  // Ensure your API key is available.
+  const hfApiKey = import.meta.env.VITE_REACT_APP_HF_API_KEY;
+  if (!hfApiKey) {
+    console.error('Missing VITE_REACT_APP_HF_API_KEY in environment variables');
+  }
 
   if (!userData) {
     return <p>Loading...</p>;
   }
 
-  // Handler for changes in main portfolio fields.
-  const handleChange = (e) => {
+  // -----------------------------
+  // Event Handlers (memoized with useCallback)
+  // -----------------------------
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
-  };
+  }, [setUserData]);
 
-  // Handler for changes in project fields.
-  const handleProjectChange = (index, field, value) => {
+  const handleProjectChange = useCallback((index, field, value) => {
     const updatedProjects = userData.projects.map((project, i) =>
       i === index ? { ...project, [field]: value } : project
     );
     setUserData((prev) => ({ ...prev, projects: updatedProjects }));
-  };
+  }, [userData.projects, setUserData]);
 
-  // Add a new empty project.
-  const addNewProject = () => {
+  const addNewProject = useCallback(() => {
     setUserData((prev) => ({
       ...prev,
       projects: [...prev.projects, { title: '', description: '' }],
     }));
-  };
+  }, [setUserData]);
 
-  // Remove a project.
-  const removeProject = (index) => {
+  const removeProject = useCallback((index) => {
     const updatedProjects = userData.projects.filter((_, i) => i !== index);
     setUserData((prev) => ({ ...prev, projects: updatedProjects }));
-  };
+  }, [userData.projects, setUserData]);
 
-  // Save handler.
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
     setShowAlert(true);
     setTimeout(() => setShowAlert(false), 2000);
-  };
+  }, []);
 
   // -----------------------------
-  // AI Generation Integration via AIModule
+  // AI Generation Functions (memoized)
   // -----------------------------
-  // Generate AI bio suggestions using the imported function.
-  const handleGenerateAIBio = async () => {
+  const generateAIBio = useCallback(async () => {
     if (!userData.profession) return;
     setAiBioLoading(true);
     try {
-      const suggestions = await generateAIBio({
-        profession: userData.profession,
-        currentBio: userData.bio,
+      const response = await fetch("https://api-inference.huggingface.co/models/facebook/blenderbot-3B", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${hfApiKey}`,
+        },
+        body: JSON.stringify({
+          inputs: `Generate a compelling and concise professional bio for someone who is a ${userData.profession} with experience in [specific skill or industry]. Highlight key strengths and accomplishments.`,
+          parameters: { num_return_sequences: 3 },
+        }),
       });
+      if (!response.ok) {
+        throw new Error('Failed to fetch AI bio suggestions');
+      }
+      const data = await response.json();
+      const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
       setAiBioSuggestions(suggestions);
     } catch (error) {
       console.error('Error generating AI bio:', error);
     } finally {
       setAiBioLoading(false);
     }
-  };
+  }, [userData.profession, hfApiKey]);
 
-  // Generate AI project description suggestions for a specific project.
-  const handleGenerateAIProjectDescription = async (index) => {
+  const generateAIProjectDescription = useCallback(async (index) => {
     const project = userData.projects[index];
     if (!project.title) return;
-    // Set loading state for this project.
-    setAiProjectState((prev) => ({
-      ...prev,
-      [index]: { loading: true, suggestions: [] },
-    }));
+    setAiProjectState((prev) => ({ ...prev, [index]: { loading: true, suggestions: [] } }));
     try {
-      const suggestions = await generateAIProjectDescription({
-        title: project.title,
-        currentDescription: project.description,
+      const response = await fetch("https://api-inference.huggingface.co/models/bigscience/bloom", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${hfApiKey}`,
+        },
+        body: JSON.stringify({
+          inputs: `Generate a project description for a project titled "${project.title}".`,
+          parameters: { num_return_sequences: 3 },
+        }),
       });
-      setAiProjectState((prev) => ({
-        ...prev,
-        [index]: { loading: false, suggestions },
-      }));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch AI project description for project ${index}`);
+      }
+      const data = await response.json();
+      const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
+      setAiProjectState((prev) => ({ ...prev, [index]: { loading: false, suggestions } }));
     } catch (error) {
       console.error(`Error generating AI description for project ${index}:`, error);
-      setAiProjectState((prev) => ({
-        ...prev,
-        [index]: { loading: false, suggestions: [] },
-      }));
+      setAiProjectState((prev) => ({ ...prev, [index]: { loading: false, suggestions: [] } }));
     }
-  };
+  }, [userData.projects, hfApiKey]);
 
-  // Accept an AI bio suggestion.
-  const acceptAIBioSuggestion = (suggestion) => {
+  // -----------------------------
+  // Create debounced versions of the AI generation functions
+  // -----------------------------
+  const debouncedGenerateAIBio = useDebouncedCallback(generateAIBio, 300);
+  const debouncedGenerateAIProjectDescription = useDebouncedCallback(generateAIProjectDescription, 300);
+
+  // -----------------------------
+  // Accept AI suggestions (memoized)
+  // -----------------------------
+  const acceptAIBioSuggestion = useCallback((suggestion) => {
     setUserData((prev) => ({ ...prev, bio: suggestion }));
     setAiBioSuggestions([]);
-  };
+  }, [setUserData]);
 
-  // Accept an AI project description suggestion.
-  const acceptAIProjectSuggestion = (index, suggestion) => {
+  const acceptAIProjectSuggestion = useCallback((index, suggestion) => {
     const updatedProjects = userData.projects.map((project, i) =>
       i === index ? { ...project, description: suggestion } : project
     );
     setUserData((prev) => ({ ...prev, projects: updatedProjects }));
-    setAiProjectState((prev) => ({
-      ...prev,
-      [index]: { ...prev[index], suggestions: [] },
-    }));
-  };
+    setAiProjectState((prev) => ({ ...prev, [index]: { ...prev[index], suggestions: [] } }));
+  }, [userData.projects, setUserData]);
 
   // -----------------------------
   // Render
@@ -216,8 +231,6 @@ const EditorPanel = () => {
   return (
     <Container className="p-4 border-start">
       <h3>Edit Portfolio</h3>
-
-      {/* Animated Alert */}
       <AnimatePresence>
         {showAlert && (
           <motion.div
@@ -232,9 +245,7 @@ const EditorPanel = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
       <Form onSubmit={handleSubmit}>
-        {/* Main Portfolio Fields */}
         <Form.Group className="mb-3" controlId="portfolioName">
           <Form.Label>Name</Form.Label>
           <Form.Control
@@ -245,7 +256,6 @@ const EditorPanel = () => {
             placeholder="Enter your name"
           />
         </Form.Group>
-
         <Form.Group className="mb-3" controlId="portfolioProfession">
           <Form.Label>Profession</Form.Label>
           <Form.Control
@@ -256,7 +266,6 @@ const EditorPanel = () => {
             placeholder="Enter your profession"
           />
         </Form.Group>
-
         <Form.Group className="mb-3" controlId="portfolioBio">
           <Form.Label>Bio</Form.Label>
           <Form.Control
@@ -268,7 +277,7 @@ const EditorPanel = () => {
             placeholder="Enter a brief bio"
           />
           <div className="mt-2">
-            <Button variant="secondary" size="sm" onClick={handleGenerateAIBio}>
+            <Button variant="secondary" size="sm" onClick={debouncedGenerateAIBio}>
               Generate AI Bio
             </Button>
             {aiBioLoading && <Spinner animation="border" size="sm" className="ms-2" />}
@@ -289,7 +298,6 @@ const EditorPanel = () => {
             </div>
           )}
         </Form.Group>
-
         <h4>Projects</h4>
         {Array.isArray(userData.projects) && userData.projects.length > 0 ? (
           userData.projects.map((project, index) => (
@@ -299,7 +307,7 @@ const EditorPanel = () => {
               index={index}
               onProjectChange={handleProjectChange}
               onRemoveProject={removeProject}
-              onGenerateAI={() => handleGenerateAIProjectDescription(index)}
+              onGenerateAI={() => debouncedGenerateAIProjectDescription(index)}
               aiLoading={aiProjectState[index]?.loading}
               aiSuggestions={aiProjectState[index]?.suggestions}
               onAcceptAISuggestion={acceptAIProjectSuggestion}
@@ -308,7 +316,6 @@ const EditorPanel = () => {
         ) : (
           <p>No projects added yet.</p>
         )}
-
         <div className="d-flex flex-wrap">
           <Button variant="secondary" className="mt-3 me-2" onClick={addNewProject}>
             + Add Project
