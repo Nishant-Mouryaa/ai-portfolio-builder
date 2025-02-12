@@ -1,3 +1,4 @@
+/* Existing styles for #root */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -24,7 +25,6 @@ body[data-theme='dark'] .card {
   color: #ffffff;
 }
 
-
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -36,6 +36,13 @@ body[data-theme='dark'] .card {
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+/* Remove the left offset for the sidebar */
+.sidebar-container {
+  /* Negate the left padding applied by #root */
+  margin-left: -4rem;
+  padding: 0;
 }
 
 
@@ -61,3 +68,23 @@ body[data-theme='dark'] .card {
 .read-the-docs {
   color: #888;
 }
+
+/* --- New CSS for App Layout Adjustments --- */
+
+/* 
+  The .app-container is the main flex container defined in App.jsx.
+  Since #root applies a 2rem padding on all sides, we use a negative left margin
+  on the sidebar container to make sure the sidebar sits flush against the viewport’s left edge.
+*/
+
+/* Ensure the overall app container fills the available space.
+   (You can leave these rules in place if they work for your overall layout.) */
+/* .app-container { 
+  Option 1: Override the centering if you want the entire app to be full width.
+     Uncomment the next three lines if desired.
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  
+ } */
+

@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import './EditorPanel.css';
 
 /**
  * Custom hook that returns a debounced version of a callback.
@@ -229,7 +230,7 @@ const EditorPanel = () => {
   // Render
   // -----------------------------
   return (
-    <Container className="p-4 border-start">
+    <Container className="p-4 border-start editor-panel-container">
       <h3>Edit Portfolio</h3>
       <AnimatePresence>
         {showAlert && (

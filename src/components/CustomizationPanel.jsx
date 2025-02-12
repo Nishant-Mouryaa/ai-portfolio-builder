@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import './CustomizationPanel.css';
+
 
 // Default settings including a new fontSize property.
 const defaultSettings = {
@@ -56,7 +58,7 @@ const CustomizationPanel = () => {
   }, []);
 
   return (
-    <Container className="p-4 border-start">
+    <Container className="p-4 border-start customization-panel-container">
       <h3>Customize Portfolio</h3>
       
       {/* Animated Success Alert */}

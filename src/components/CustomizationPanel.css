@@ -1,0 +1,43 @@
+/* CustomizationPanel.css */
+
+/* Dark Mode overrides for the Customization Panel container */
+body[data-theme="dark"] .customization-panel-container {
+    background-color: #121212; /* Dark container background */
+    color: #ffffff;            /* White text for general content */
+    border-color: #ffffff;
+  }
+  
+  /* Dark Mode overrides for Form Labels */
+  body[data-theme="dark"] .customization-panel-container .form-label {
+    color: #ffffff !important;
+  }
+  
+  /* Dark Mode overrides for input fields and selects (Form.Control and Form.Select) */
+  body[data-theme="dark"] .customization-panel-container .form-control,
+  body[data-theme="dark"] .customization-panel-container .form-select {
+    background-color: #1e1e1e !important;  /* Dark background for inputs */
+    color: #ffffff !important;             /* White text inside inputs */
+    border: 1px solid #ffffff !important;   /* White border for inputs */
+  }
+  
+  /* Optional: Override the styling for input range sliders if needed */
+  body[data-theme="dark"] .customization-panel-container input[type="range"] {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border: 1px solid #ffffff !important;
+  }
+  
+  /* Dark Mode override for the Alert component inside the panel */
+  body[data-theme="dark"] .customization-panel-container .alert {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+  
+  /* Keep Buttons with white background and dark text in dark mode */
+  body[data-theme="dark"] .customization-panel-container .btn {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #ffffff !important;
+  }
+   

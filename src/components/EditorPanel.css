@@ -1,0 +1,43 @@
+/* EditorPanel.css */
+
+/* Base styles for the Editor Panel are assumed to come from Bootstrap and inline settings.
+   Below we add dark mode overrides using the [data-theme="dark"] attribute */
+
+/* Dark Mode overrides for the Editor Panel container */
+body[data-theme="dark"] .editor-panel-container {
+    background-color: #121212; /* Dark background for the container */
+    color: #ffffff;            /* White text for general content */
+    border-color: #ffffff;
+  }
+  
+  /* Dark Mode overrides for input fields and textareas (Form.Control) */
+  body[data-theme="dark"] .editor-panel-container .form-control {
+    background-color: #1e1e1e !important;  /* Dark background for inputs */
+    color: #ffffff !important;             /* White text in inputs */
+    border: 1px solid #ffffff !important;   /* White border for inputs */
+  }
+  
+  /* Dark Mode overrides for Form Labels */
+  body[data-theme="dark"] .editor-panel-container .form-label {
+    color: #ffffff !important;
+  }
+  
+  /* Optional: Dark mode adjustments for the Alert component inside the Editor Panel */
+  body[data-theme="dark"] .editor-panel-container .alert {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+  
+  /* 
+    For Buttons, we want to keep the background white even in dark mode.
+    We'll override any dark mode rules so that the button backgrounds remain white,
+    with a white border and dark text for contrast.
+  */
+  body[data-theme="dark"] .editor-panel-container .btn-secondary,
+  body[data-theme="dark"] .editor-panel-container .btn-primary {
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  

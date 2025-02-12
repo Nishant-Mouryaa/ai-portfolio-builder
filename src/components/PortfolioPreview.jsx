@@ -3,6 +3,7 @@ import { Container, Card, Spinner } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion } from 'framer-motion';
 
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
@@ -37,7 +38,7 @@ const PortfolioPreview = () => {
     return (
       <Container
         fluid
-        className="p-4 d-flex justify-content-center align-items-center"
+        className="p-4 d-flex justify-content-center align-items-center portfolio-preview-container"
         style={{ minHeight: '50vh' }}
       >
         <Spinner animation="border" variant="primary" role="status" aria-hidden="true" />
@@ -79,7 +80,7 @@ const PortfolioPreview = () => {
   };
 
   return (
-    <Container fluid className="p-4" style={previewStyle}>
+    <Container fluid className="p-4 portfolio-preview-container" style={previewStyle}>
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -87,7 +88,10 @@ const PortfolioPreview = () => {
         transition={{ duration: 0.3 }}
       >
         <h3 className="text-center mb-3">Live Portfolio Preview</h3>
-        <Card className="shadow-lg p-4" style={{ ...templateStyle, backgroundColor: settings.backgroundColor }}>
+        <Card
+          className="shadow-lg p-4"
+          style={{ ...templateStyle, backgroundColor: settings.backgroundColor }}
+        >
           <Card.Body>
             <h2 style={headingStyle}>{name || 'Your Name'}</h2>
             <h5 style={headingStyle}>{profession || 'Your Profession'}</h5>

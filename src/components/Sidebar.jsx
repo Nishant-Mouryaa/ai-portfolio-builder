@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   Container,
@@ -18,22 +18,22 @@ import {
 } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 import ThemeToggle from './ThemeToggle';
+import './Sidebar.css'; // Import the CSS file for additional styling
 
 const Sidebar = ({ onSelectOption }) => {
   const { userData } = usePortfolio() || {};
 
-  // For desktop: isCollapsed true means minimized (60px); false means expanded (250px)
-  // For mobile: isCollapsed true means hidden (off-canvas); false means visible (overlay)
-  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth <= 768);
+  // Determine mobile mode based on initial window width.
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  // On mobile, collapsed means hidden (off-canvas); on desktop, collapsed means minimized.
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth <= 768);
 
-  // Listen for changes in viewport width to update mobile state.
+  // Update mobile state on viewport changes.
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 768px)');
     const handleMediaChange = (e) => {
       setIsMobile(e.matches);
-      // On mobile, auto-collapse (hide) the sidebar.
-      setIsCollapsed(e.matches);
+      setIsCollapsed(e.matches); // On mobile, auto-hide sidebar on viewport change.
     };
 
     if (mediaQuery.addEventListener) {
@@ -50,64 +50,41 @@ const Sidebar = ({ onSelectOption }) => {
     };
   }, []);
 
-  const handleToggle = () => setIsCollapsed((prev) => !prev);
+  // Toggle sidebar collapsed state.
+  const handleToggle = useCallback(() => {
+    setIsCollapsed((prev) => !prev);
+  }, []);
 
-  // Define styling for mobile and desktop differently.
-  let sidebarStyle = {};
-  if (isMobile) {
-    // On mobile, we use a fixed overlay that slides in/out.
-    sidebarStyle = {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '250px',
-      height: '100vh',
-      backgroundColor: '#f8f9fa',
-      transition: 'transform 0.3s ease-in-out',
-      transform: isCollapsed ? 'translateX(-100%)' : 'translateX(0)',
-      zIndex: 1050,
-      overflowY: 'auto',
-    };
-  } else {
-    // On desktop, toggle the width.
-    sidebarStyle = {
-      width: isCollapsed ? '60px' : '250px',
-      transition: 'width 0.3s',
-      overflowX: 'hidden',
-    };
-  }
-
-  // Define menu items.
+  // Menu items.
   const menuItems = [
     { key: 'edit', label: 'Edit Portfolio', icon: <FaEdit size={18} /> },
     { key: 'customize', label: 'Customize Appearance', icon: <FaPalette size={18} /> },
     { key: 'ai', label: 'AI Content Generator', icon: <FaRobot size={18} /> },
   ];
 
-  // Sidebar content (common for mobile and desktop).
+  // Sidebar content common to mobile and desktop.
   const sidebarContent = (
-    <div className="d-flex flex-column" style={{ height: '100%' }}>
+    <div className="d-flex flex-column h-100 sidebar-content">
       <Container fluid className="p-0">
-        {/* Profile Section (hidden in collapsed state on desktop) */}
-        <div className={`p-3 border-bottom text-center ${!isMobile && isCollapsed ? 'd-none' : ''}`}>
+        {/* Profile Section */}
+        <div className={`sidebar-profile p-3 border-bottom text-center ${!isMobile && isCollapsed ? 'd-none' : ''}`}>
           <FaUserCircle size={50} className="text-primary" />
           <h5 className="mt-2">{userData?.name || 'Your Name'}</h5>
           <p className="text-muted">{userData?.plan || 'Free Plan'}</p>
         </div>
 
         {/* Navigation Menu */}
-        <ListGroup variant="flush">
+        <ListGroup variant="flush" className="sidebar-menu">
           {menuItems.map((item) => (
             <ListGroup.Item
               action
               key={item.key}
               onClick={() => {
                 onSelectOption?.(item.key);
-                if (isMobile) setIsCollapsed(true); // auto-hide overlay on mobile when selecting an option
+                if (isMobile) setIsCollapsed(true); // Auto-hide overlay on mobile when selecting an option
               }}
-              className="d-flex align-items-center"
+              className="d-flex align-items-center sidebar-menu-item"
             >
-              {/* On desktop and expanded, show icon and label; if collapsed, show tooltip only */}
               {(!isMobile && isCollapsed) ? (
                 <OverlayTrigger
                   placement="right"
@@ -126,14 +103,14 @@ const Sidebar = ({ onSelectOption }) => {
         </ListGroup>
 
         {/* Action Buttons */}
-        <div className="mt-4 d-grid gap-2 p-3">
+        <div className="mt-auto d-grid gap-2 p-3 sidebar-actions">
           {(!isMobile && isCollapsed) ? (
             <>
               <OverlayTrigger
                 placement="right"
                 overlay={<Tooltip id="tooltip-save">Save Portfolio</Tooltip>}
               >
-                <Button variant="primary">
+                <Button variant="primary" className="sidebar-action-btn">
                   <FaSave size={18} />
                 </Button>
               </OverlayTrigger>
@@ -141,18 +118,18 @@ const Sidebar = ({ onSelectOption }) => {
                 placement="right"
                 overlay={<Tooltip id="tooltip-publish">Publish Portfolio</Tooltip>}
               >
-                <Button variant="success">
+                <Button variant="success" className="sidebar-action-btn">
                   <FaSave size={18} />
                 </Button>
               </OverlayTrigger>
             </>
           ) : (
             <>
-              <Button variant="primary">
+              <Button variant="primary" className="d-flex align-items-center sidebar-action-btn">
                 <FaSave className="me-2" size={18} />
                 Save Portfolio
               </Button>
-              <Button variant="success">
+              <Button variant="success" className="d-flex align-items-center sidebar-action-btn">
                 <FaSave className="me-2" size={18} />
                 Publish Portfolio
               </Button>
@@ -164,7 +141,7 @@ const Sidebar = ({ onSelectOption }) => {
     </div>
   );
 
-  // On mobile, render a fixed toggle button outside the overlay.
+  // Mobile view: render a fixed toggle button and overlay sidebar.
   if (isMobile) {
     return (
       <>
@@ -172,38 +149,37 @@ const Sidebar = ({ onSelectOption }) => {
           variant="outline-dark"
           onClick={handleToggle}
           aria-label={isCollapsed ? 'Open sidebar' : 'Close sidebar'}
-          style={{
-            position: 'fixed',
-            top: 10,
-            left: 10,
-            zIndex: 1100,
-          }}
+          className="mobile-toggle-btn"
         >
           {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
         </Button>
-        <div style={sidebarStyle}>{sidebarContent}</div>
+        <div className="mobile-sidebar" style={{ transform: isCollapsed ? 'translateX(-100%)' : 'translateX(0)' }}>
+          {sidebarContent}
+        </div>
       </>
     );
   }
 
-  // Desktop view.
-  return (
-    <div style={sidebarStyle}>
-      <Button
-        variant="outline-dark"
-        className="mb-3 align-self-start"
-        onClick={handleToggle}
-        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
-      </Button>
-      {sidebarContent}
-    </div>
-  );
+  // Desktop view: render a sticky sidebar with smooth width transitions.
+  // In Sidebar.jsx (desktop view)
+return (
+  <div className={`desktop-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <Button
+      variant="outline-dark"
+      onClick={handleToggle}
+      aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      className="desktop-toggle-btn"
+    >
+      {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
+    </Button>
+    {sidebarContent}
+  </div>
+);
+
 };
 
 Sidebar.propTypes = {
   onSelectOption: PropTypes.func,
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);

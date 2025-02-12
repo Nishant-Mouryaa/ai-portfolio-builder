@@ -1,0 +1,132 @@
+/* Sidebar.css */
+
+/* ---------- Light Mode (Default) Styles ---------- */
+
+/* Desktop sidebar with sticky behavior */
+.desktop-sidebar {
+    width: 250px;
+    transition: width 0.3s ease;
+    overflow-x: hidden;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background-color: #f8f9fa; /* light background */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    scrollbar-gutter: stable;
+    padding-right: 10px;
+  }
+  
+  /* When collapsed, minimize width */
+  .desktop-sidebar.collapsed {
+    width: 90px;
+    left: auto;
+  }
+  
+  /* Mobile sidebar overlay */
+  .mobile-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #f8f9fa;
+    transition: transform 0.3s ease-in-out;
+    z-index: 1050;
+    overflow-y: auto;
+  }
+  
+  /* Toggle button for mobile view */
+  .mobile-toggle-btn {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+  }
+  
+  /* Toggle button for desktop view */
+  .desktop-toggle-btn {
+    margin: 1rem;
+    transition: transform 0.2s ease;
+  }
+  .desktop-toggle-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Sidebar menu item */
+  .sidebar-menu-item {
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    color: #000000; /* default text color for light mode */
+    background-color: transparent;
+    /* Ensure enough padding for both icon and text */
+    padding: 0.5rem 1rem;
+  }
+  .sidebar-menu-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Sidebar action buttons */
+  .sidebar-action-btn {
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+  .sidebar-action-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Sidebar content container */
+  .sidebar-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Spacing for profile, menu, and action sections */
+  .sidebar-profile,
+  .sidebar-menu,
+  .sidebar-actions {
+    padding: 0.5rem;
+  }
+  
+  /* Profile Section Text (Light Mode) */
+  .sidebar-profile h5 {
+    color: #000000;
+  }
+  .sidebar-profile p {
+    color: #6c757d; /* Bootstrap's text-muted color for light mode */
+  }
+  
+  /* ---------- Dark Mode Overrides ---------- */
+  body[data-theme='dark'] .desktop-sidebar,
+  body[data-theme='dark'] .mobile-sidebar {
+    background-color: #121212;
+    box-shadow: 2px 0 5px rgba(255, 255, 255, 0.1);
+  }
+  
+  body[data-theme='dark'] .sidebar-menu-item {
+    color: #ffffff; /* white text for menu items */
+    background-color: transparent;
+  }
+  body[data-theme='dark'] .sidebar-menu-item:hover {
+    background-color: #333333; /* darker hover background */
+  }
+  
+  /* Ensure that any SVG icons inside menu items become white */
+  body[data-theme='dark'] .sidebar-menu-item svg {
+    color: #ffffff;
+  }
+  
+  /* Profile Section Text (Dark Mode) */
+  body[data-theme='dark'] .sidebar-profile h5 {
+    color: #ffffff;
+  }
+  body[data-theme='dark'] .sidebar-profile p {
+    color: #f0f0f0; /* brighter text for the plan info */
+  }
+  
+  /* Toggle buttons in Dark Mode */
+  body[data-theme='dark'] .desktop-toggle-btn,
+  body[data-theme='dark'] .mobile-toggle-btn {
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+  

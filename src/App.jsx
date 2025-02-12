@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import PortfolioPreview from './components/PortfolioPreview';
 import EditorPanel from './components/EditorPanel';
@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { ThemeProvider } from './context/ThemeContext';
 import './App.css';
 
-// A placeholder for the AI Content Generator component.
+// Placeholder for the AI Content Generator component.
 const AIContentGenerator = () => (
   <div className="p-4">
     <h3>AI Content Generator</h3>
@@ -18,18 +18,19 @@ const AIContentGenerator = () => (
 );
 
 const App = () => {
-  // State to track which panel is active; default to "edit".
   const [activePanel, setActivePanel] = useState('edit');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Update mobile state on window resize.
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Conditionally render the active panel based on the sidebar selection.
+  const handleSelectOption = useCallback((option) => {
+    setActivePanel(option);
+  }, []);
+
   const renderActivePanel = () => {
     switch (activePanel) {
       case 'edit':
@@ -50,28 +51,24 @@ const App = () => {
 
   return (
     <ThemeProvider>
-    <PortfolioProvider>
-      {/* 
-          Using a responsive flex container with explicit order:
-          - On mobile (flex-column), the sidebar is ordered first.
-          - On larger screens (flex-md-row), they display side-by-side.
-      */}
-      <div className="d-flex flex-column flex-md-row vh-100">
-        <div className="order-1">
-          <Sidebar onSelectOption={(option) => setActivePanel(option)} />
-        </div>
-        <div className="order-2 flex-grow-1 p-4">
-          <div className="row h-100">
-            <div className="col-md-7 mb-3 mb-md-0">
-              <PortfolioPreview />
+      <PortfolioProvider>
+        {/* The container below is set to fill the viewport without extra margins or padding */}
+        <div className="app-container d-flex flex-column flex-md-row vh-100">
+          <aside className="sidebar-container order-1">
+            <Sidebar onSelectOption={handleSelectOption} />
+          </aside>
+          <main className="content-container order-2 flex-grow-1 p-4">
+            <div className="row h-100">
+              <div className="col-md-7 mb-3 mb-md-0">
+                <PortfolioPreview />
+              </div>
+              <div className="col-md-5">
+                {renderActivePanel()}
+              </div>
             </div>
-            <div className="col-md-5">
-              {renderActivePanel()}
-            </div>
-          </div>
+          </main>
         </div>
-      </div>
-    </PortfolioProvider>
+      </PortfolioProvider>
     </ThemeProvider>
   );
 };
