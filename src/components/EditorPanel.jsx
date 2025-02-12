@@ -1,5 +1,7 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
+// src/components/EditorPanel.jsx
+import React, { useState, useCallback, useRef } from 'react';
+import { Container, Form, Button, Row, Col, Alert, Spinner, Modal, ListGroup } from 'react-bootstrap';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import './EditorPanel.css';
@@ -9,7 +11,6 @@ import './EditorPanel.css';
  */
 function useDebouncedCallback(callback, delay) {
   const timer = useRef(null);
-  
   return useCallback((...args) => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
@@ -94,49 +95,53 @@ const EditorPanel = () => {
   const { userData, setUserData } = usePortfolio();
   const [showAlert, setShowAlert] = useState(false);
 
-  // State for AI bio generation.
+  // State for AI generation.
   const [aiBioLoading, setAiBioLoading] = useState(false);
   const [aiBioSuggestions, setAiBioSuggestions] = useState([]);
-
-  // State for AI project description generation.
-  // Mapping: project index => { loading: boolean, suggestions: array }
   const [aiProjectState, setAiProjectState] = useState({});
-
-  // Ensure your API key is available.
   const hfApiKey = import.meta.env.VITE_REACT_APP_HF_API_KEY;
   if (!hfApiKey) {
     console.error('Missing VITE_REACT_APP_HF_API_KEY in environment variables');
   }
 
+  // Template customization states:
+  const availableFonts = [
+    { label: 'Arial', value: 'Arial, sans-serif' },
+    { label: 'Poppins', value: 'Poppins, sans-serif' },
+    { label: 'Roboto', value: 'Roboto, sans-serif' },
+  ];
+  // Assume userData.sections is an array of section keys.
+  const initialSections = userData.sections || ['header', 'about', 'projects', 'contact', 'testimonials'];
+  const [sections, setSections] = useState(initialSections);
+  // Custom template upload states.
+  const [showCustomTemplateModal, setShowCustomTemplateModal] = useState(false);
+  const [customTemplateName, setCustomTemplateName] = useState('');
+  const [customTemplateImage, setCustomTemplateImage] = useState(null);
+
   if (!userData) {
     return <p>Loading...</p>;
   }
 
-  // -----------------------------
-  // Event Handlers (memoized with useCallback)
-  // -----------------------------
+  // Event handlers for user details.
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setUserData((prev) => ({ ...prev, [name]: value }));
+    setUserData(prev => ({ ...prev, [name]: value }));
   }, [setUserData]);
 
   const handleProjectChange = useCallback((index, field, value) => {
     const updatedProjects = userData.projects.map((project, i) =>
       i === index ? { ...project, [field]: value } : project
     );
-    setUserData((prev) => ({ ...prev, projects: updatedProjects }));
+    setUserData(prev => ({ ...prev, projects: updatedProjects }));
   }, [userData.projects, setUserData]);
 
   const addNewProject = useCallback(() => {
-    setUserData((prev) => ({
-      ...prev,
-      projects: [...prev.projects, { title: '', description: '' }],
-    }));
+    setUserData(prev => ({ ...prev, projects: [...prev.projects, { title: '', description: '' }] }));
   }, [setUserData]);
 
   const removeProject = useCallback((index) => {
     const updatedProjects = userData.projects.filter((_, i) => i !== index);
-    setUserData((prev) => ({ ...prev, projects: updatedProjects }));
+    setUserData(prev => ({ ...prev, projects: updatedProjects }));
   }, [userData.projects, setUserData]);
 
   const handleSubmit = useCallback((e) => {
@@ -145,9 +150,7 @@ const EditorPanel = () => {
     setTimeout(() => setShowAlert(false), 2000);
   }, []);
 
-  // -----------------------------
-  // AI Generation Functions (memoized)
-  // -----------------------------
+  // AI generation functions.
   const generateAIBio = useCallback(async () => {
     if (!userData.profession) return;
     setAiBioLoading(true);
@@ -179,7 +182,7 @@ const EditorPanel = () => {
   const generateAIProjectDescription = useCallback(async (index) => {
     const project = userData.projects[index];
     if (!project.title) return;
-    setAiProjectState((prev) => ({ ...prev, [index]: { loading: true, suggestions: [] } }));
+    setAiProjectState(prev => ({ ...prev, [index]: { loading: true, suggestions: [] } }));
     try {
       const response = await fetch("https://api-inference.huggingface.co/models/bigscience/bloom", {
         method: 'POST',
@@ -197,24 +200,18 @@ const EditorPanel = () => {
       }
       const data = await response.json();
       const suggestions = Array.isArray(data) ? data.map(item => item.generated_text) : [];
-      setAiProjectState((prev) => ({ ...prev, [index]: { loading: false, suggestions } }));
+      setAiProjectState(prev => ({ ...prev, [index]: { loading: false, suggestions } }));
     } catch (error) {
       console.error(`Error generating AI description for project ${index}:`, error);
-      setAiProjectState((prev) => ({ ...prev, [index]: { loading: false, suggestions: [] } }));
+      setAiProjectState(prev => ({ ...prev, [index]: { loading: false, suggestions: [] } }));
     }
   }, [userData.projects, hfApiKey]);
 
-  // -----------------------------
-  // Create debounced versions of the AI generation functions
-  // -----------------------------
   const debouncedGenerateAIBio = useDebouncedCallback(generateAIBio, 300);
   const debouncedGenerateAIProjectDescription = useDebouncedCallback(generateAIProjectDescription, 300);
 
-  // -----------------------------
-  // Accept AI suggestions (memoized)
-  // -----------------------------
   const acceptAIBioSuggestion = useCallback((suggestion) => {
-    setUserData((prev) => ({ ...prev, bio: suggestion }));
+    setUserData(prev => ({ ...prev, bio: suggestion }));
     setAiBioSuggestions([]);
   }, [setUserData]);
 
@@ -222,13 +219,66 @@ const EditorPanel = () => {
     const updatedProjects = userData.projects.map((project, i) =>
       i === index ? { ...project, description: suggestion } : project
     );
-    setUserData((prev) => ({ ...prev, projects: updatedProjects }));
-    setAiProjectState((prev) => ({ ...prev, [index]: { ...prev[index], suggestions: [] } }));
+    setUserData(prev => ({ ...prev, projects: updatedProjects }));
+    setAiProjectState(prev => ({ ...prev, [index]: { ...prev[index], suggestions: [] } }));
   }, [userData.projects, setUserData]);
 
-  // -----------------------------
-  // Render
-  // -----------------------------
+  // Template customization handlers.
+  const handleFontChange = (e) => {
+    const font = e.target.value;
+    setUserData(prev => ({ ...prev, templateFont: font }));
+  };
+
+  const handlePrimaryColorChange = (e) => {
+    const primaryColor = e.target.value;
+    setUserData(prev => ({ ...prev, primaryColor }));
+  };
+
+  const handleSecondaryColorChange = (e) => {
+    const secondaryColor = e.target.value;
+    setUserData(prev => ({ ...prev, secondaryColor }));
+  };
+
+  const handleOnDragEnd = (result) => {
+    if (!result.destination) return;
+    const newSections = Array.from(sections);
+    const [movedItem] = newSections.splice(result.source.index, 1);
+    newSections.splice(result.destination.index, 0, movedItem);
+    setSections(newSections);
+    setUserData(prev => ({ ...prev, sections: newSections }));
+  };
+
+  const handleCustomTemplateUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomTemplateImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveCustomTemplate = () => {
+    const newTemplate = {
+      id: `custom-${Date.now()}`,
+      name: customTemplateName,
+      image: customTemplateImage,
+      font: userData.templateFont || 'Arial, sans-serif',
+      primaryColor: userData.primaryColor || '#007bff',
+      secondaryColor: userData.secondaryColor || '#ffffff',
+      sections: sections,
+    };
+    setUserData(prev => ({
+      ...prev,
+      customTemplates: prev.customTemplates ? [...prev.customTemplates, newTemplate] : [newTemplate],
+      selectedTemplate: newTemplate,
+    }));
+    setShowCustomTemplateModal(false);
+    setCustomTemplateName('');
+    setCustomTemplateImage(null);
+  };
+
   return (
     <Container className="p-4 border-start editor-panel-container">
       <h3>Edit Portfolio</h3>
@@ -247,6 +297,7 @@ const EditorPanel = () => {
         )}
       </AnimatePresence>
       <Form onSubmit={handleSubmit}>
+        {/* User Details */}
         <Form.Group className="mb-3" controlId="portfolioName">
           <Form.Label>Name</Form.Label>
           <Form.Control
@@ -299,6 +350,8 @@ const EditorPanel = () => {
             </div>
           )}
         </Form.Group>
+
+        {/* Projects Section */}
         <h4>Projects</h4>
         {Array.isArray(userData.projects) && userData.projects.length > 0 ? (
           userData.projects.map((project, index) => (
@@ -326,6 +379,112 @@ const EditorPanel = () => {
           </Button>
         </div>
       </Form>
+
+      <hr />
+
+      {/* Template Customization Options */}
+      <h3>Template Customization</h3>
+      <Form>
+        {/* Font Selection */}
+        <Form.Group className="mb-3" controlId="templateFont">
+          <Form.Label>Font Selection</Form.Label>
+          <Form.Select onChange={handleFontChange} value={userData.templateFont || 'Arial, sans-serif'}>
+            {availableFonts.map((font, idx) => (
+              <option key={idx} value={font.value}>{font.label}</option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+
+        {/* Color Customization */}
+        <Form.Group className="mb-3" controlId="primaryColor">
+          <Form.Label>Primary Color</Form.Label>
+          <Form.Control
+            type="color"
+            onChange={handlePrimaryColorChange}
+            value={userData.primaryColor || '#007bff'}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3" controlId="secondaryColor">
+          <Form.Label>Secondary Color</Form.Label>
+          <Form.Control
+            type="color"
+            onChange={handleSecondaryColorChange}
+            value={userData.secondaryColor || '#ffffff'}
+          />
+        </Form.Group>
+
+        {/* Section Reordering */}
+        <Form.Group className="mb-3">
+          <Form.Label>Reorder Portfolio Sections</Form.Label>
+          <DragDropContext onDragEnd={handleOnDragEnd}>
+            <Droppable droppableId="sections">
+              {(provided) => (
+                <ListGroup {...provided.droppableProps} ref={provided.innerRef}>
+                  {sections.map((section, index) => (
+                    <Draggable key={section} draggableId={section} index={index}>
+                      {(provided) => (
+                        <ListGroup.Item
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          {section.charAt(0).toUpperCase() + section.slice(1)}
+                        </ListGroup.Item>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </ListGroup>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </Form.Group>
+
+        {/* Custom Template Upload */}
+        <Form.Group className="mb-3">
+          <Form.Label>Create / Upload Custom Template</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Template Name"
+            value={customTemplateName}
+            onChange={(e) => setCustomTemplateName(e.target.value)}
+          />
+          <Form.Control
+            type="file"
+            accept="image/*"
+            onChange={handleCustomTemplateUpload}
+            className="mt-2"
+          />
+          <Button variant="success" className="mt-2" onClick={() => setShowCustomTemplateModal(true)}>
+            Save Custom Template
+          </Button>
+        </Form.Group>
+      </Form>
+
+      {/* Modal for Custom Template Confirmation */}
+      <Modal show={showCustomTemplateModal} onHide={() => setShowCustomTemplateModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Custom Template</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to save this custom template?</p>
+          {customTemplateImage && (
+            <img
+              src={customTemplateImage}
+              alt="Custom Template Preview"
+              style={{ width: '100%', maxHeight: '300px', objectFit: 'cover' }}
+            />
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowCustomTemplateModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSaveCustomTemplate}>
+            Save Template
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

@@ -1,9 +1,13 @@
 /* Existing styles for #root */
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.app-container {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Default Light Mode */
@@ -38,13 +42,24 @@ body[data-theme='dark'] .card {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-/* Remove the left offset for the sidebar */
+/* Sidebar container: remove negative margin so it stays flush on the left */
 .sidebar-container {
-  /* Negate the left padding applied by #root */
-  margin-left: -4rem;
+  margin: 0;
   padding: 0;
 }
 
+/* Main content container: add left margin equal to the sidebar width (250px) */
+.content-container {
+  margin-left: 250px;
+  padding: 2rem;
+}
+
+/* Responsive adjustments: on mobile, use full width (remove left margin) */
+@media (max-width: 768px) {
+  .content-container {
+    margin-left: 0;
+  }
+}
 
 @keyframes logo-spin {
   from {
@@ -69,22 +84,4 @@ body[data-theme='dark'] .card {
   color: #888;
 }
 
-/* --- New CSS for App Layout Adjustments --- */
-
-/* 
-  The .app-container is the main flex container defined in App.jsx.
-  Since #root applies a 2rem padding on all sides, we use a negative left margin
-  on the sidebar container to make sure the sidebar sits flush against the viewport’s left edge.
-*/
-
-/* Ensure the overall app container fills the available space.
-   (You can leave these rules in place if they work for your overall layout.) */
-/* .app-container { 
-  Option 1: Override the centering if you want the entire app to be full width.
-     Uncomment the next three lines if desired.
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-  
- } */
-
+/* --- End of Layout Adjustments --- */

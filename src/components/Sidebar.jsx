@@ -1,70 +1,35 @@
+// src/components/Sidebar.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container,
-  Button,
-  ListGroup,
-  OverlayTrigger,
-  Tooltip,
-} from 'react-bootstrap';
-import {
-  FaUserCircle,
-  FaEdit,
-  FaPalette,
-  FaSave,
-  FaRobot,
-  FaBars,
-  FaTimes,
-} from 'react-icons/fa';
+import { Container, Button, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaUserCircle, FaEdit, FaPalette, FaSave, FaRobot, FaBars, FaTimes } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
 import ThemeToggle from './ThemeToggle';
-import './Sidebar.css'; // Import the CSS file for additional styling
+import './Sidebar.css';
 
-const Sidebar = ({ onSelectOption }) => {
+const Sidebar = ({ onSelectOption, isMobile: propIsMobile }) => {
   const { userData } = usePortfolio() || {};
+  // Use the isMobile value passed as prop from App.jsx
+  const [isMobile, setIsMobile] = useState(propIsMobile);
+  const [isCollapsed, setIsCollapsed] = useState(propIsMobile);
 
-  // Determine mobile mode based on initial window width.
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  // On mobile, collapsed means hidden (off-canvas); on desktop, collapsed means minimized.
-  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth <= 768);
-
-  // Update mobile state on viewport changes.
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    const handleMediaChange = (e) => {
-      setIsMobile(e.matches);
-      setIsCollapsed(e.matches); // On mobile, auto-hide sidebar on viewport change.
-    };
+    setIsMobile(propIsMobile);
+    setIsCollapsed(propIsMobile);
+  }, [propIsMobile]);
 
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleMediaChange);
-    } else {
-      mediaQuery.addListener(handleMediaChange);
-    }
-    return () => {
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener('change', handleMediaChange);
-      } else {
-        mediaQuery.removeListener(handleMediaChange);
-      }
-    };
-  }, []);
-
-  // Toggle sidebar collapsed state.
   const handleToggle = useCallback(() => {
-    setIsCollapsed((prev) => !prev);
+    setIsCollapsed(prev => !prev);
   }, []);
 
-  // Menu items.
   const menuItems = [
     { key: 'edit', label: 'Edit Portfolio', icon: <FaEdit size={18} /> },
     { key: 'customize', label: 'Customize Appearance', icon: <FaPalette size={18} /> },
     { key: 'ai', label: 'AI Content Generator', icon: <FaRobot size={18} /> },
   ];
 
-  // Sidebar content common to mobile and desktop.
   const sidebarContent = (
-    <div className="d-flex flex-column h-100 sidebar-content">
+    <div className="d-flex flex-column sidebar-content">
       <Container fluid className="p-0">
         {/* Profile Section */}
         <div className={`sidebar-profile p-3 border-bottom text-center ${!isMobile && isCollapsed ? 'd-none' : ''}`}>
@@ -81,7 +46,7 @@ const Sidebar = ({ onSelectOption }) => {
               key={item.key}
               onClick={() => {
                 onSelectOption?.(item.key);
-                if (isMobile) setIsCollapsed(true); // Auto-hide overlay on mobile when selecting an option
+                if (isMobile) setIsCollapsed(true);
               }}
               className="d-flex align-items-center sidebar-menu-item"
             >
@@ -141,7 +106,7 @@ const Sidebar = ({ onSelectOption }) => {
     </div>
   );
 
-  // Mobile view: render a fixed toggle button and overlay sidebar.
+  // Mobile view: render as overlay.
   if (isMobile) {
     return (
       <>
@@ -160,22 +125,20 @@ const Sidebar = ({ onSelectOption }) => {
     );
   }
 
-  // Desktop view: render a sticky sidebar with smooth width transitions.
-  // In Sidebar.jsx (desktop view)
-return (
-  <div className={`desktop-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-    <Button
-      variant="outline-dark"
-      onClick={handleToggle}
-      aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      className="desktop-toggle-btn"
-    >
-      {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
-    </Button>
-    {sidebarContent}
-  </div>
-);
-
+  // Desktop view: use the fixed sidebar container.
+  return (
+    <div className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
+      <Button
+        variant="outline-dark"
+        onClick={handleToggle}
+        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        className="desktop-toggle-btn"
+      >
+        {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
+      </Button>
+      {sidebarContent}
+    </div>
+  );
 };
 
 Sidebar.propTypes = {

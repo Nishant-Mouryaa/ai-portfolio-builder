@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import PortfolioPreview from './components/PortfolioPreview';
@@ -8,8 +9,9 @@ import { PortfolioProvider } from './context/PortfolioContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { ThemeProvider } from './context/ThemeContext';
 import './App.css';
+import PortfolioTemplate from './components/PortfolioTemplate';
+import DynamicPortfolioPreview from './components/DynamicPortfolioPreview';
 
-// Placeholder for the AI Content Generator component.
 const AIContentGenerator = () => (
   <div className="p-4">
     <h3>AI Content Generator</h3>
@@ -52,17 +54,15 @@ const App = () => {
   return (
     <ThemeProvider>
       <PortfolioProvider>
-        {/* The container below is set to fill the viewport without extra margins or padding */}
-        <div className="app-container d-flex flex-column flex-md-row vh-100">
-          <aside className="sidebar-container order-1">
-            <Sidebar onSelectOption={handleSelectOption} />
-          </aside>
-          <main className="content-container order-2 flex-grow-1 p-4">
+        <div className="app-container">
+          {/* Sidebar is rendered with a fixed container */}
+          <Sidebar onSelectOption={handleSelectOption} isMobile={isMobile} />
+          <main className="content-container">
             <div className="row h-100">
-              <div className="col-md-7 mb-3 mb-md-0">
-                <PortfolioPreview />
+              <div className="col-md-8 p-0">
+                <DynamicPortfolioPreview />
               </div>
-              <div className="col-md-5">
+              <div className="col-md-4 p-4">
                 {renderActivePanel()}
               </div>
             </div>
