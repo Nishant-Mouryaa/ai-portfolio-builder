@@ -1,148 +1,61 @@
-// src/components/Sidebar.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Button, ListGroup, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { FaUserCircle, FaEdit, FaPalette, FaSave, FaRobot, FaBars, FaTimes } from 'react-icons/fa';
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaBars, FaTimes } from 'react-icons/fa';
 import { usePortfolio } from '../context/PortfolioContext';
-import ThemeToggle from './ThemeToggle';
 import './Sidebar.css';
 
-const Sidebar = ({ onSelectOption, isMobile: propIsMobile }) => {
-  const { userData } = usePortfolio() || {};
-  // Use the isMobile value passed as prop from App.jsx
-  const [isMobile, setIsMobile] = useState(propIsMobile);
-  const [isCollapsed, setIsCollapsed] = useState(propIsMobile);
+function Sidebar({ isOpen, toggleSidebar }) {
+  const { state, dispatch } = usePortfolio();
+  const { activeSection } = state;
 
-  useEffect(() => {
-    setIsMobile(propIsMobile);
-    setIsCollapsed(propIsMobile);
-  }, [propIsMobile]);
+  const handleSetActive = (section) => {
+    dispatch({ type: 'SET_ACTIVE_SECTION', payload: section });
+  };
 
-  const handleToggle = useCallback(() => {
-    setIsCollapsed(prev => !prev);
-  }, []);
-
-  const menuItems = [
-    { key: 'edit', label: 'Edit Portfolio', icon: <FaEdit size={18} /> },
-    { key: 'customize', label: 'Customize Appearance', icon: <FaPalette size={18} /> },
-    { key: 'ai', label: 'AI Content Generator', icon: <FaRobot size={18} /> },
+  const navItems = [
+    { key: 'hero', label: 'Hero' },
+    { key: 'projects', label: 'Projects' },
+    { key: 'skills', label: 'Skills' },
+    { key: 'testimonials', label: 'Testimonials' },
+    { key: 'contact', label: 'Contact' },
   ];
 
-  const sidebarContent = (
-    <div className="d-flex flex-column sidebar-content">
-      <Container fluid className="p-0">
-        {/* Profile Section */}
-        <div className={`sidebar-profile p-3 border-bottom text-center ${!isMobile && isCollapsed ? 'd-none' : ''}`}>
-          <FaUserCircle size={50} className="text-primary" />
-          <h5 className="mt-2">{userData?.name || 'Your Name'}</h5>
-          <p className="text-muted">{userData?.plan || 'Free Plan'}</p>
-        </div>
-
-        {/* Navigation Menu */}
-        <ListGroup variant="flush" className="sidebar-menu">
-          {menuItems.map((item) => (
-            <ListGroup.Item
-              action
-              key={item.key}
-              onClick={() => {
-                onSelectOption?.(item.key);
-                if (isMobile) setIsCollapsed(true);
-              }}
-              className="d-flex align-items-center sidebar-menu-item"
-            >
-              {(!isMobile && isCollapsed) ? (
-                <OverlayTrigger
-                  placement="right"
-                  overlay={<Tooltip id={`tooltip-${item.key}`}>{item.label}</Tooltip>}
-                >
-                  <div>{item.icon}</div>
-                </OverlayTrigger>
-              ) : (
-                <>
-                  {item.icon}
-                  <span className="ms-2">{item.label}</span>
-                </>
-              )}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
-
-        {/* Action Buttons */}
-        <div className="mt-auto d-grid gap-2 p-3 sidebar-actions">
-          {(!isMobile && isCollapsed) ? (
-            <>
-              <OverlayTrigger
-                placement="right"
-                overlay={<Tooltip id="tooltip-save">Save Portfolio</Tooltip>}
-              >
-                <Button variant="primary" className="sidebar-action-btn">
-                  <FaSave size={18} />
-                </Button>
-              </OverlayTrigger>
-              <OverlayTrigger
-                placement="right"
-                overlay={<Tooltip id="tooltip-publish">Publish Portfolio</Tooltip>}
-              >
-                <Button variant="success" className="sidebar-action-btn">
-                  <FaSave size={18} />
-                </Button>
-              </OverlayTrigger>
-            </>
-          ) : (
-            <>
-              <Button variant="primary" className="d-flex align-items-center sidebar-action-btn">
-                <FaSave className="me-2" size={18} />
-                Save Portfolio
-              </Button>
-              <Button variant="success" className="d-flex align-items-center sidebar-action-btn">
-                <FaSave className="me-2" size={18} />
-                Publish Portfolio
-              </Button>
-              <ThemeToggle />
-            </>
-          )}
-        </div>
-      </Container>
-    </div>
-  );
-
-  // Mobile view: render as overlay.
-  if (isMobile) {
-    return (
-      <>
-        <Button
-          variant="outline-dark"
-          onClick={handleToggle}
-          aria-label={isCollapsed ? 'Open sidebar' : 'Close sidebar'}
-          className="mobile-toggle-btn"
-        >
-          {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
-        </Button>
-        <div className="mobile-sidebar" style={{ transform: isCollapsed ? 'translateX(-100%)' : 'translateX(0)' }}>
-          {sidebarContent}
-        </div>
-      </>
-    );
-  }
-
-  // Desktop view: use the fixed sidebar container.
   return (
-    <div className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
-      <Button
-        variant="outline-dark"
-        onClick={handleToggle}
-        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="desktop-toggle-btn"
-      >
-        {isCollapsed ? <FaBars size={24} /> : <FaTimes size={24} />}
-      </Button>
-      {sidebarContent}
+    <div className={`sidebar-container ${isOpen ? 'open' : 'closed'} bg-dark text-white`}>
+      <div className="sidebar-toggle">
+        <Button
+          variant="outline-light"
+          size="sm"
+          onClick={toggleSidebar}
+          className="toggle-btn"
+        >
+          {isOpen ? <FaTimes /> : <FaBars />}
+        </Button>
+      </div>
+      <nav className="sidebar-nav mt-4">
+        {navItems.map((item) => (
+          <OverlayTrigger
+            key={item.key}
+            placement="right"
+            overlay={<Tooltip>{item.label}</Tooltip>}
+          >
+            <div
+              className={`nav-item ${activeSection === item.key ? 'active' : ''}`}
+              onClick={() => handleSetActive(item.key)}
+            >
+              {isOpen ? item.label : item.label.slice(0, 1)}
+            </div>
+          </OverlayTrigger>
+        ))}
+      </nav>
     </div>
   );
-};
+}
 
 Sidebar.propTypes = {
-  onSelectOption: PropTypes.func,
+  isOpen: PropTypes.bool.isRequired,
+  toggleSidebar: PropTypes.func.isRequired,
 };
 
-export default React.memo(Sidebar);
+export default Sidebar;

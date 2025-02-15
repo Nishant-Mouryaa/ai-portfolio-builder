@@ -1,10 +1,16 @@
+// src/main.jsx
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
-import 'bootstrap/dist/css/bootstrap.min.css';  // Bootstrap styles
+import { PortfolioProvider } from './context/PortfolioContext';
+import './index.css'; // if you have global styles
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
   <React.StrictMode>
-    <App />
+    <PortfolioProvider>
+      <App />
+    </PortfolioProvider>
   </React.StrictMode>
 );

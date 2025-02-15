@@ -1,0 +1,53 @@
+/* Container for the entire live preview. 
+   If you have a wrapping .bg-dark and .text-white, this is optional. */
+   .live-preview {
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Hero Image */
+  .hero-image {
+    max-width: 200px;
+    object-fit: cover;
+  }
+  
+  /* Hover Icon Transition */
+  .hover-icon {
+    transition: transform 0.2s ease;
+  }
+  .hover-icon:hover {
+    transform: scale(1.1);
+    color: #0d6efd; /* or your accent color */
+  }
+  
+  /* Project Cards */
+  .project-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  }
+  .project-image-wrapper {
+    overflow: hidden;
+  }
+  .project-image {
+    transition: transform 0.3s ease;
+  }
+  .project-card:hover .project-image {
+    transform: scale(1.05);
+  }
+  
+  /* Skills progress bars (Override default colors to match dark theme) */
+  .progress-skill .progress-bar {
+    background-color: #0d6efd; /* or your chosen primary color */
+  }
+  
+  /* Testimonial Card */
+  .testimonial-card {
+    transition: transform 0.2s ease;
+  }
+  .testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  }
+  

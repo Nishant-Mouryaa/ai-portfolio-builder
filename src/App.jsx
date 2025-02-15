@@ -1,76 +1,39 @@
-// src/App.jsx
-import React, { useState, useEffect, useCallback } from 'react';
-import Sidebar from './components/Sidebar';
-import PortfolioPreview from './components/PortfolioPreview';
-import EditorPanel from './components/EditorPanel';
-import TemplateSelector from './components/TemplateSelector';
-import CustomizationPanel from './components/CustomizationPanel';
-import { PortfolioProvider } from './context/PortfolioContext';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { ThemeProvider } from './context/ThemeContext';
 import './App.css';
-import PortfolioTemplate from './components/PortfolioTemplate';
-import DynamicPortfolioPreview from './components/DynamicPortfolioPreview';
 
-const AIContentGenerator = () => (
-  <div className="p-4">
-    <h3>AI Content Generator</h3>
-    <p>Coming soon...</p>
-  </div>
-);
+import Navigation from './components/Navigation';
+import Sidebar from './components/Sidebar';
+import LivePreview from './components/LivePreview';
+import EditorPanel from './components/EditorPanel';
+import CustomizationPanel from './components/CustomizationPanel';
 
-const App = () => {
-  const [activePanel, setActivePanel] = useState('edit');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const handleSelectOption = useCallback((option) => {
-    setActivePanel(option);
-  }, []);
-
-  const renderActivePanel = () => {
-    switch (activePanel) {
-      case 'edit':
-        return (
-          <>
-            <EditorPanel />
-            <TemplateSelector />
-          </>
-        );
-      case 'customize':
-        return <CustomizationPanel />;
-      case 'ai':
-        return <AIContentGenerator />;
-      default:
-        return null;
-    }
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
   };
 
   return (
-    <ThemeProvider>
-      <PortfolioProvider>
-        <div className="app-container">
-          {/* Sidebar is rendered with a fixed container */}
-          <Sidebar onSelectOption={handleSelectOption} isMobile={isMobile} />
-          <main className="content-container">
-            <div className="row h-100">
-              <div className="col-md-8 p-0">
-                <DynamicPortfolioPreview />
-              </div>
-              <div className="col-md-4 p-4">
-                {renderActivePanel()}
-              </div>
+    <div className="app bg-dark text-white">
+      <Navigation />
+      <div className="d-flex">
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+        <div className="main-content flex-grow-1 p-3">
+          <div className="row">
+            <div className="col-lg-8 mb-4">
+              <LivePreview />
             </div>
-          </main>
+            <div className="col-lg-4">
+              <EditorPanel />
+              <CustomizationPanel />
+            </div>
+          </div>
         </div>
-      </PortfolioProvider>
-    </ThemeProvider>
+      </div>
+    </div>
   );
-};
+}
 
 export default App;

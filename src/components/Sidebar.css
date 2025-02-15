@@ -1,120 +1,37 @@
-/* ---------- Light Mode (Default) Styles ---------- */
-
-/* Fixed sidebar container */
 .sidebar-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 250px; /* Default expanded width */
   transition: width 0.3s ease;
-  z-index: 1000;
-  background-color: #f8f9fa;
-  overflow-y: auto;
-  box-sizing: border-box;
+  position: relative;
+  min-height: 100vh;
+  border-right: 1px solid #333;
+  z-index: 10;
+}
+.sidebar-container.closed {
+  width: 60px;
+}
+.sidebar-container.open {
+  width: 200px;
 }
 
-/* When collapsed, reduce width */
-.sidebar-container.collapsed {
-  width: 90px;
+/* Toggle Button Area */
+.sidebar-toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: -2.5rem;
 }
 
-/* Sidebar content fills the container */
-.sidebar-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+/* Navigation Items */
+.sidebar-nav {
+  margin-top: 3rem;
 }
-
-/* Sidebar menu item styling */
-.sidebar-menu-item {
-  transition: background-color 0.2s ease;
+.sidebar-nav .nav-item {
+  color: #ccc;
+  padding: 0.75rem 1rem;
   cursor: pointer;
-  color: #000000; /* default text color */
-  background-color: transparent;
-  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #2f2f2f;
+  transition: background-color 0.2s ease;
 }
-.sidebar-menu-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-/* Sidebar action buttons */
-.sidebar-action-btn {
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-.sidebar-action-btn:hover {
-  transform: scale(1.05);
-}
-
-/* Spacing for profile, menu, and action sections */
-.sidebar-profile,
-.sidebar-menu,
-.sidebar-actions {
-  padding: 0.5rem;
-}
-
-/* Profile section text */
-.sidebar-profile h5 {
-  color: #000000;
-}
-.sidebar-profile p {
-  color: #6c757d;
-}
-
-/* ---------- Mobile Sidebar Overlay ---------- */
-.mobile-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 250px;
-  height: 100vh;
-  background-color: #f8f9fa;
-  transition: transform 0.3s ease-in-out;
-  z-index: 1050;
-  overflow-y: auto;
-}
-
-/* Toggle button for mobile view */
-.mobile-toggle-btn {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 1100;
-}
-
-/* Toggle button for desktop view */
-.desktop-toggle-btn {
-  margin: 1rem;
-  transition: transform 0.2s ease;
-}
-.desktop-toggle-btn:hover {
-  transform: scale(1.05);
-}
-
-/* ---------- Dark Mode Overrides ---------- */
-body[data-theme='dark'] .sidebar-container,
-body[data-theme='dark'] .mobile-sidebar {
-  background-color: #121212;
-  box-shadow: 2px 0 5px rgba(255, 255, 255, 0.1);
-}
-body[data-theme='dark'] .sidebar-menu-item {
-  color: #ffffff;
-  background-color: transparent;
-}
-body[data-theme='dark'] .sidebar-menu-item:hover {
-  background-color: #333333;
-}
-body[data-theme='dark'] .sidebar-menu-item svg {
-  color: #ffffff;
-}
-body[data-theme='dark'] .sidebar-profile h5 {
-  color: #ffffff;
-}
-body[data-theme='dark'] .sidebar-profile p {
-  color: #f0f0f0;
-}
-body[data-theme='dark'] .desktop-toggle-btn,
-body[data-theme='dark'] .mobile-toggle-btn {
-  color: #ffffff;
-  border-color: #ffffff;
+.sidebar-nav .nav-item:hover,
+.sidebar-nav .nav-item.active {
+  background-color: #444;
+  color: #fff;
 }

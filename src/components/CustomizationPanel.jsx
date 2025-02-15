@@ -1,139 +1,83 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Container, Form, Button, Alert, Row, Col } from 'react-bootstrap';
-import { usePortfolio } from '../context/PortfolioContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
 import './CustomizationPanel.css';
+import { usePortfolio } from '../context/PortfolioContext';
 
+function CustomizationPanel() {
+  const { state, dispatch } = usePortfolio();
+  const { fontFamily, colors } = state;
 
-// Default settings including a new fontSize property.
-const defaultSettings = {
-  font: 'Arial',
-  primaryColor: '#007bff',
-  backgroundColor: '#ffffff',
-  fontSize: 16, // in pixels
-};
-
-const CustomizationPanel = () => {
-  const { settings, setSettings } = usePortfolio();
-  const [showAlert, setShowAlert] = useState(false);
-  const alertTimerRef = useRef(null);
-
-  // If the settings context isn’t ready, show a loading indicator.
-  if (!settings || !setSettings) {
-    return <p>Loading...</p>;
-  }
-
-  // Handle generic changes.
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSettings((prev) => ({ ...prev, [name]: value }));
+  const handleFontChange = (e) => {
+    dispatch({ type: 'UPDATE_FONT_FAMILY', payload: e.target.value });
   };
 
-  // Handle font size changes (ensure conversion to number).
-  const handleFontSizeChange = (e) => {
-    setSettings((prev) => ({ ...prev, fontSize: parseInt(e.target.value, 10) }));
+  const handleColorChange = (key, value) => {
+    dispatch({ type: 'UPDATE_COLOR', payload: { key, value } });
   };
-
-  // Apply changes and show a success alert.
-  const handleApplyChanges = (e) => {
-    e.preventDefault();
-    setShowAlert(true);
-    if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
-    alertTimerRef.current = setTimeout(() => setShowAlert(false), 2000);
-  };
-
-  // Reset settings to defaults.
-  const handleReset = () => {
-    setSettings(defaultSettings);
-    setShowAlert(true);
-    if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
-    alertTimerRef.current = setTimeout(() => setShowAlert(false), 2000);
-  };
-
-  // Cleanup on unmount.
-  useEffect(() => {
-    return () => {
-      if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
-    };
-  }, []);
 
   return (
-    <Container className="p-4 border-start customization-panel-container">
-      <h3>Customize Portfolio</h3>
-      
-      {/* Animated Success Alert */}
-      <Row className="mb-3">
-        <Col>
-          <AnimatePresence>
-            {showAlert && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Alert variant="success" onClose={() => setShowAlert(false)} dismissible>
-                  Changes Applied!
-                </Alert>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </Col>
-      </Row>
+    <div className="customization-panel bg-dark text-white p-3 mt-3">
+      <h5>Customization Panel</h5>
+      <hr className="bg-secondary" />
 
-      <Form onSubmit={handleApplyChanges}>
-        <Form.Group className="mb-3">
-          <Form.Label>Font Style</Form.Label>
-          <Form.Select name="font" value={settings.font || defaultSettings.font} onChange={handleChange}>
-            <option value="Arial">Arial</option>
-            <option value="Poppins">Poppins</option>
-            <option value="Roboto">Roboto</option>
-          </Form.Select>
-        </Form.Group>
+      <div className="mb-3">
+        <label className="form-label">Font Family</label>
+        <select
+          className="form-select bg-dark text-white border-secondary"
+          value={fontFamily}
+          onChange={handleFontChange}
+        >
+          <option value="Roboto">Roboto</option>
+          <option value="Montserrat">Montserrat</option>
+          <option value="Open Sans">Open Sans</option>
+          <option value="Lato">Lato</option>
+          {/* Add your desired fonts */}
+        </select>
+      </div>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Font Size: {settings.fontSize}px</Form.Label>
-          <Form.Control
-            type="range"
-            name="fontSize"
-            min="10"
-            max="36"
-            value={settings.fontSize}
-            onChange={handleFontSizeChange}
-          />
-        </Form.Group>
+      <div className="mb-3">
+        <label className="form-label">Primary Color</label>
+        <input
+          type="color"
+          className="form-control form-control-color"
+          value={colors.primary}
+          onChange={(e) => handleColorChange('primary', e.target.value)}
+        />
+      </div>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Primary Color</Form.Label>
-          <Form.Control
-            type="color"
-            name="primaryColor"
-            value={settings.primaryColor || defaultSettings.primaryColor}
-            onChange={handleChange}
-          />
-        </Form.Group>
+      <div className="mb-3">
+        <label className="form-label">Accent Color</label>
+        <input
+          type="color"
+          className="form-control form-control-color"
+          value={colors.accent}
+          onChange={(e) => handleColorChange('accent', e.target.value)}
+        />
+      </div>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Background Color</Form.Label>
-          <Form.Control
-            type="color"
-            name="backgroundColor"
-            value={settings.backgroundColor || defaultSettings.backgroundColor}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <div className="d-flex justify-content-between">
-          <Button variant="primary" type="submit">
-            Apply Changes
-          </Button>
-          <Button variant="secondary" type="button" onClick={handleReset}>
-            Reset to Default
-          </Button>
-        </div>
-      </Form>
-    </Container>
+      {/* Placeholder for section reordering */}
+      <div className="mt-4">
+        <label className="form-label">Reorder Sections</label>
+        <ul className="list-group bg-dark">
+          <li className="list-group-item bg-dark text-white border-secondary">
+            Hero
+          </li>
+          <li className="list-group-item bg-dark text-white border-secondary">
+            Projects
+          </li>
+          <li className="list-group-item bg-dark text-white border-secondary">
+            Skills
+          </li>
+          <li className="list-group-item bg-dark text-white border-secondary">
+            Testimonials
+          </li>
+          <li className="list-group-item bg-dark text-white border-secondary">
+            Contact
+          </li>
+        </ul>
+        {/* In a real app, you might integrate something like react-beautiful-dnd */}
+      </div>
+    </div>
   );
-};
+}
 
 export default CustomizationPanel;

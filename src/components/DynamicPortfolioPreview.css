@@ -1,0 +1,55 @@
+/* src/components/DynamicPortfolioPreview.css */
+.dynamic-portfolio-preview {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.dynamic-portfolio-preview * {
+  transition: all 0.3s ease;
+}
+
+/* Hero Section */
+.preview-hero {
+  padding: 5rem 0;
+}
+.preview-hero .preview-title {
+  font-weight: 700;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+.preview-hero .preview-subtitle {
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+}
+.preview-hero .preview-cta button {
+  margin: 0.5rem;
+}
+
+/* Ensure profile photo is sized appropriately */
+.profile-photo {
+  max-width: 150px;
+  margin: 0 auto;
+}
+
+/* Other sections */
+.preview-about, .preview-projects, .preview-skills, .preview-testimonials, .preview-contact {
+  padding: 3rem 0;
+}
+
+/* Social Icons */
+.social-icon {
+  color: inherit;
+  transition: color 0.3s ease;
+}
+.social-icon:hover { color: #007bff; }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .preview-hero,
+  .preview-about,
+  .preview-projects,
+  .preview-skills,
+  .preview-testimonials,
+  .preview-contact {
+    padding: 3rem 1rem;
+  }
+}

@@ -1,0 +1,22 @@
+/* src/components/TemplateSelector.css */
+.template-selector {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  padding: 2rem;
+  color: #ffffff;
+}
+.template-scroll-container {
+  padding-bottom: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.template-card {
+  background-color: #2e2e2e;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+@media (max-width: 768px) {
+  .template-card { width: 250px; }
+}
+.popover img { border-radius: 4px; }

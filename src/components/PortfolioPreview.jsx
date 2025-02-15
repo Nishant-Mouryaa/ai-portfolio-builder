@@ -1,113 +1,135 @@
+// src/components/PortfolioPreview.jsx
 import React from 'react';
-import { Container, Card, Spinner } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import { motion } from 'framer-motion';
-
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
-
-const projectVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, delay: i * 0.1 },
-  }),
-};
-
-const ProjectItem = ({ project, index }) => (
-  <motion.div
-    custom={index}
-    variants={projectVariants}
-    initial="hidden"
-    animate="visible"
-    className="border p-3 my-2 rounded"
-  >
-    <h5>{project.title}</h5>
-    <p>{project.description}</p>
-  </motion.div>
-);
 
 const PortfolioPreview = () => {
   const { userData, settings } = usePortfolio();
 
   if (!userData) {
     return (
-      <Container
-        fluid
-        className="p-4 d-flex justify-content-center align-items-center portfolio-preview-container"
-        style={{ minHeight: '50vh' }}
-      >
-        <Spinner animation="border" variant="primary" role="status" aria-hidden="true" />
-        <span className="visually-hidden">Loading...</span>
-      </Container>
+      <div className="min-h-[50vh] flex items-center justify-center text-gray-300">
+        Loading portfolio...
+      </div>
     );
   }
 
-  const { name, profession, bio, projects, selectedTemplate } = userData;
+  // Destructure some data
+  const { projects, skills, testimonials, bio, selectedTemplate } = userData;
 
-  // Apply customization settings including font size.
-  const previewStyle = {
-    fontFamily: settings.font,
-    fontSize: `${settings.fontSize}px`,
-    backgroundColor: settings.backgroundColor,
-    transition: 'all 0.3s ease',
-  };
-
-  // Optionally override the preview look based on a selected template.
-  let templateStyle = {};
-  if (selectedTemplate) {
-    switch (selectedTemplate.name) {
-      case 'Minimal':
-        templateStyle = { border: '3px solid #007bff' };
-        break;
-      case 'Creative':
-        templateStyle = { border: '3px solid #ff5722' };
-        break;
-      case 'Professional':
-        templateStyle = { border: '3px solid #333' };
-        break;
-      default:
-        templateStyle = {};
-    }
-  }
-
-  const headingStyle = {
-    color: settings.primaryColor,
+  // Animation variants for fading in content
+  const fadeVariant = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
   return (
-    <Container fluid className="p-4 portfolio-preview-container" style={previewStyle}>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        transition={{ duration: 0.3 }}
-      >
-        <h3 className="text-center mb-3">Live Portfolio Preview</h3>
-        <Card
-          className="shadow-lg p-4"
-          style={{ ...templateStyle, backgroundColor: settings.backgroundColor }}
+    <section className="mb-12">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          variants={fadeVariant}
+          initial="hidden"
+          animate="visible"
+          className="text-3xl font-bold mb-6"
         >
-          <Card.Body>
-            <h2 style={headingStyle}>{name || 'Your Name'}</h2>
-            <h5 style={headingStyle}>{profession || 'Your Profession'}</h5>
-            <p>{bio || 'This is your portfolio bio. Edit it to add details about yourself.'}</p>
-            <h4 className="mt-4">Projects</h4>
-            {Array.isArray(projects) && projects.length > 0 ? (
-              projects.map((project, index) => (
-                <ProjectItem key={project.id || index} project={project} index={index} />
-              ))
-            ) : (
-              <p>No projects added yet.</p>
-            )}
-          </Card.Body>
-        </Card>
-      </motion.div>
-    </Container>
+          About Me
+        </motion.h2>
+        <motion.p
+          variants={fadeVariant}
+          initial="hidden"
+          animate="visible"
+          className="text-lg mb-12"
+        >
+          {bio || "This is your bio. Tell your story, highlight your skills and achievements."}
+        </motion.p>
+
+        {/* Projects Section */}
+        <motion.h2
+          variants={fadeVariant}
+          initial="hidden"
+          animate="visible"
+          className="text-3xl font-bold mb-6"
+        >
+          Projects
+        </motion.h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          {projects && projects.length > 0 ? (
+            projects.map((project, idx) => (
+              <motion.div
+                key={idx}
+                variants={fadeVariant}
+                className="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-shadow"
+              >
+                <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
+                <p className="text-gray-300">{project.description}</p>
+              </motion.div>
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-full">No projects to display.</p>
+          )}
+        </div>
+
+        {/* Skills Section */}
+        <motion.h2
+          variants={fadeVariant}
+          initial="hidden"
+          animate="visible"
+          className="text-3xl font-bold mt-12 mb-6"
+        >
+          Skills & Technologies
+        </motion.h2>
+        <div className="space-y-4">
+          {skills && skills.length > 0 ? (
+            skills.map((skill, idx) => (
+              <motion.div key={idx} variants={fadeVariant} className="flex flex-col">
+                <span className="font-semibold">{skill.name}</span>
+                <div className="w-full bg-gray-700 rounded-full h-3">
+                  <div
+                    className="bg-blue-500 h-3 rounded-full"
+                    style={{ width: `${skill.proficiency}%` }}
+                  ></div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <p className="text-gray-500">No skills added.</p>
+          )}
+        </div>
+
+        {/* Testimonials Section */}
+        <motion.h2
+          variants={fadeVariant}
+          initial="hidden"
+          animate="visible"
+          className="text-3xl font-bold mt-12 mb-6"
+        >
+          Testimonials
+        </motion.h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          {testimonials && testimonials.length > 0 ? (
+            testimonials.map((t, idx) => (
+              <motion.div
+                key={idx}
+                variants={fadeVariant}
+                className="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-shadow"
+              >
+                {t.image && (
+                  <img
+                    src={t.image}
+                    alt={`Testimonial ${idx}`}
+                    className="w-16 h-16 rounded-full mb-4 object-cover mx-auto"
+                  />
+                )}
+                <p className="text-gray-300 italic mb-2">"{t.message}"</p>
+                <p className="text-blue-400 font-semibold text-center">- {t.author}</p>
+              </motion.div>
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-full">No testimonials available.</p>
+          )}
+        </div>
+      </div>
+    </section>
   );
 };
 

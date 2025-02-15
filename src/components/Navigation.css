@@ -1,0 +1,19 @@
+.custom-nav {
+    border-bottom: 1px solid #333;
+  }
+  .brand-text {
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  .user-initials {
+    display: inline-block;
+    background-color: #555;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    color: #fff;
+    font-weight: 600;
+  }
+  
