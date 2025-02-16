@@ -1,3 +1,4 @@
+// components/EditorPanel.js
 import React from 'react';
 import './EditorPanel.css';
 import { usePortfolio } from '../context/PortfolioContext';
@@ -43,6 +44,15 @@ function EditorPanel() {
               onChange={(e) => handleChange('subtitle', e.target.value)}
             />
           </div>
+          <div className="editor-field mb-3">
+            <label className="form-label">Hero Image URL</label>
+            <input
+              type="text"
+              className="form-control bg-dark text-white border-secondary"
+              value={sectionData.image || ''}
+              onChange={(e) => handleChange('image', e.target.value)}
+            />
+          </div>
         </>
       )}
 
@@ -57,11 +67,10 @@ function EditorPanel() {
               onChange={(e) => handleChange('title', e.target.value)}
             />
           </div>
-          {/* Add a sub-component or logic to handle project items */}
+          {/* Add additional fields or a sub-component to handle project items */}
         </>
       )}
 
-      {/* Repeat pattern for skills, testimonials, contact, etc. */}
       {activeSection === 'skills' && (
         <>
           <div className="editor-field mb-3">

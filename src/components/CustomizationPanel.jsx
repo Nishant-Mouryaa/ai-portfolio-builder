@@ -1,3 +1,4 @@
+// components/CustomizationPanel.js
 import React from 'react';
 import './CustomizationPanel.css';
 import { usePortfolio } from '../context/PortfolioContext';
