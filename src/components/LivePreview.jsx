@@ -6,7 +6,7 @@ function LivePreview() {
   // Placeholder data for demonstration:
   const userName = 'John Doe';
   const userProfession = 'Full Stack Developer';
-  const userImage = 'https://via.placeholder.com/200x200?text=Profile+Image';
+  const userImage = 'https://i.postimg.cc/JhmWc727/DALL-E-2025-01-15-23-43-34-A-single-person-smiling-confidently-ideal-for-a-testimonial-page-The.webp';
   const socialLinks = [
     { iconClass: 'bi-github', url: 'https://github.com/username' },
     { iconClass: 'bi-linkedin', url: 'https://www.linkedin.com/in/username/' },
@@ -15,19 +15,19 @@ function LivePreview() {
 
   const projects = [
     {
-      title: 'Project One',
-      description: 'Description for project one.',
-      image: 'https://via.placeholder.com/400x300?text=Project+1',
+      title: 'Portfolio Template',
+      description: 'A portfolio Template for free to showcase your skills.',
+      image: 'https://i.postimg.cc/j5dkQcc4/Portfolio-Preview-1.png',
     },
     {
-      title: 'Project Two',
-      description: 'Description for project two.',
-      image: 'https://via.placeholder.com/400x300?text=Project+2',
+      title: 'Mockup for Builder',
+      description: 'A mockup for portfolio builder UI',
+      image: 'https://i.postimg.cc/0jzWhNL6/Belder-Web-Builder-Dashboard.jpg',
     },
     {
-      title: 'Project Three',
-      description: 'Description for project three.',
-      image: 'https://via.placeholder.com/400x300?text=Project+3',
+      title: 'Ecommmerce',
+      description: 'A full stack Ecommmerce website.',
+      image: 'https://i.postimg.cc/x1vswhFP/banner.png',
     },
   ];
 
@@ -43,13 +43,13 @@ function LivePreview() {
       name: 'Jane Smith',
       feedback:
         'John delivered the project on time and exceeded our expectations. Highly recommend!',
-      image: 'https://via.placeholder.com/80?text=Client+1',
+      image: 'https://i.postimg.cc/Qtt0WtN6/DALL-E-2025-01-15-23-49-55-A-single-female-person-smiling-confidently-ideal-for-a-testimonial-pag.webp',
     },
     {
       name: 'Mark Davis',
       feedback:
         'The best developer we’ve worked with. Extremely professional, creative, and reliable.',
-      image: 'https://via.placeholder.com/80?text=Client+2',
+      image: 'https://i.postimg.cc/FF2XNtDt/DALL-E-2025-01-15-23-49-05-A-single-male-person-smiling-confidently-ideal-for-a-testimonial-page.webp',
     },
   ];
 
