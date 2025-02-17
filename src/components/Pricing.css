@@ -1,0 +1,60 @@
+/* components/Pricing.css */
+
+.pricing-page {
+    background-color: none;
+    color: #fff;
+    padding: 2rem;
+  }
+  
+  .pricing-card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+  }
+  
+  .pricing-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card-header-dark {
+    background-color: #343a40;
+    color: #fff;
+  }
+  
+  .card-header-primary {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .card-header-warning {
+    background-color: #ffc107;
+    color: #343a40;
+  }
+  
+  /* Override table styles for dark theme */
+  .table-dark th,
+  .table-dark td {
+    border-color: #444;
+  }
+  
+  /* Accordion dark theme */
+  .accordion-button {
+    background-color: #2a2a2a;
+    color: #fff;
+    border: none;
+  }
+  .accordion-body {
+    background-color: #1a1a1a;
+    color: #fff;
+  }
+  
+  /* Carousel blockquote styling */
+  blockquote {
+    font-style: italic;
+    margin: 0;
+  }
+  blockquote footer {
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+   

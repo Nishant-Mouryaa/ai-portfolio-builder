@@ -1,0 +1,41 @@
+/* components/Features.css */
+.features-page {
+    background-color: none;
+    color: #fff;
+    padding: 2rem;
+  }
+  
+  .feature-card {
+    background-color: #fff;
+    border: none;
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  blockquote {
+    font-style: italic;
+    border: none;
+    margin: 0;
+  }
+  
+  blockquote footer {
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+  
+  /* Accordion dark theme */
+  .accordion-button {
+    background-color: #2a2a2a;
+    color: #fff;
+    border: none;
+  }
+  .accordion-body {
+    background-color: #1a1a1a;
+    color: #fff;
+  }
+  

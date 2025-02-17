@@ -7,6 +7,15 @@ body, html, .app {
   min-height: 100vh;
 }
 
+.full-page {
+  position: relative;
+  width: 100vw; /* Use the full viewport width */
+  padding: 1rem;
+  min-height: calc(100vh - 56px); /* Adjust for navbar height */
+  box-sizing: border-box;
+}
+
+
 a {
   color: #fff;
   text-decoration: none;

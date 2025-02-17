@@ -1,5 +1,7 @@
+// components/Navigation.jsx
 import React from 'react';
 import { Navbar, Container, Nav, Image } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { usePortfolio } from '../context/PortfolioContext';
 import './Navigation.css';
 
@@ -10,17 +12,16 @@ function Navigation() {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="custom-nav">
       <Container fluid>
-        <Navbar.Brand href="#home" className="brand-text">
+        <Navbar.Brand as={Link} to="/" className="brand-text">
           AI Portfolio Builder
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="navbar-content" />
         <Navbar.Collapse id="navbar-content" className="justify-content-end">
           <Nav>
-            <Nav.Link href="#features">Features</Nav.Link>
-            <Nav.Link href="#pricing">Pricing</Nav.Link>
-            {/* Example user profile thumbnail or avatar */}
-            <Nav.Link href="#profile" className="d-flex align-items-center">
+            <Nav.Link as={Link} to="/features">Features</Nav.Link>
+            <Nav.Link as={Link} to="/pricing">Pricing</Nav.Link>
+            <Nav.Link as={Link} to="/profile" className="d-flex align-items-center">
               {user.avatarUrl ? (
                 <Image
                   src={user.avatarUrl}

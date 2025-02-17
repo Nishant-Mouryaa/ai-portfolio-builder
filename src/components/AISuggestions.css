@@ -1,0 +1,13 @@
+/* components/AISuggestions.css */
+.ai-suggestions {
+    margin-top: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  .ai-suggestions h5 {
+    margin-bottom: 1rem;
+  }
+  .ai-suggestions p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+   
