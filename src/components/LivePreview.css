@@ -97,3 +97,38 @@
   background-color: var(--accent-color);
   border-color: var(--accent-color);
 }
+
+/* LivePreview.css */
+
+.live-preview {
+  transition: all 0.3s ease;
+}
+
+/* Modern Template */
+.template-modern {
+  background-color: #f8f9fa;
+  color: #343a40;
+}
+.template-modern .hero-section {
+  background-color: #e9ecef;
+}
+
+/* Creative Template */
+.template-creative {
+  background-color: #222;
+  color: #f8f9fa;
+}
+.template-creative .hero-section {
+  background: linear-gradient(135deg, #ff6f61, #6b5b95);
+  color: #fff;
+}
+
+/* Classic Template */
+.template-classic {
+  background-color: #fff;
+  color: #333;
+  font-family: 'Times New Roman', serif;
+}
+.template-classic .hero-section {
+  background-color: #ddd;
+}

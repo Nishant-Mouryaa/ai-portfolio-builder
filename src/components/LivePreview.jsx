@@ -2,27 +2,50 @@
 import React from 'react';
 import { Container, Row, Col, Card, ProgressBar, Form, Button } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
-import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import './LivePreview.css';
+
+// Import programming language icons from react-icons
+import { 
+  SiJavascript, 
+  SiPython, 
+  SiCplusplus, 
+  SiRuby, 
+  SiPhp, 
+  SiGo, 
+  SiTypescript 
+} from 'react-icons/si';
+
+// Mapping from icon key to component
+const languageIcons = {
+  SiJavascript,
+  SiPython,
+  SiCplusplus,
+  SiRuby,
+  SiPhp,
+  SiGo,
+  SiTypescript,
+};
 
 function LivePreview() {
   const { state } = usePortfolio();
-  const { sections, user, fontFamily, colors } = state;
+  const { sections, user, fontFamily, colors, template } = state;
   const hero = sections.hero;
   const projectsSection = sections.projects;
   const skillsSection = sections.skills;
   const testimonialsSection = sections.testimonials;
   const contactSection = sections.contact;
 
-  // Static social links (you can later move these into context as needed)
+  // Static social links
   const socialLinks = [
-    { icon: <FaGithub />, url: 'https://github.com/username' },
-    { icon: <FaLinkedin />, url: 'https://www.linkedin.com/in/username/' },
+    { iconClass: 'bi-github', url: 'https://github.com/username' },
+    { iconClass: 'bi-linkedin', url: 'https://www.linkedin.com/in/username/' },
   ];
+
+  const selectedTemplate = template || 'modern'; // default to 'modern' if template is undefined
 
   return (
     <div
-      className="live-preview"
+      className={`live-preview template-${selectedTemplate.toLowerCase()}`}
       style={{
         fontFamily: fontFamily,
         '--primary-color': colors.primary,
@@ -39,17 +62,17 @@ function LivePreview() {
                   <h1 className="display-3 fw-bold">{hero.title}</h1>
                   <p className="lead">{hero.subtitle}</p>
                   <div className="d-flex justify-content-center gap-3 mt-4">
-                  {socialLinks.map((link, index) => (
-                    <a
-                    key={index}
-                    href={link.url}
-                    className="text-white social-icon"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {link.icon}
-                  </a>
-                ))}
+                    {socialLinks.map((link, index) => (
+                      <a
+                        key={index}
+                        href={link.url}
+                        className="text-white social-icon"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <i className={`bi ${link.iconClass} fs-2`}></i>
+                      </a>
+                    ))}
                   </div>
                   <Button variant="primary" className="mt-4">
                     Hire Me
@@ -92,10 +115,15 @@ function LivePreview() {
             <Row>
               {skillsSection.items.map((skill, idx) => (
                 <Col md={6} className="mb-3" key={idx}>
-                  <div className="d-flex justify-content-between">
+                  <div className="d-flex justify-content-between align-items-center">
                     <span>
-                      <strong>{skill.name}</strong>{' '}
-                      <small className="text-muted">({skill.category})</small>
+                      {skill.icon && languageIcons[skill.icon] ? (
+                        <span className="me-2">
+                          {React.createElement(languageIcons[skill.icon], { size: '1.5em' })}
+                        </span>
+                      ) : null}
+                      <strong>{skill.name}</strong>
+                      <small className="text-muted ms-1">({skill.category})</small>
                     </span>
                     <span>{skill.level}%</span>
                   </div>

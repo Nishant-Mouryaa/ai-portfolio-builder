@@ -1,10 +1,11 @@
+// context/PortfolioContext.js
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 // 1. Create Context
 const PortfolioContext = createContext(null);
 
-// 2. Initial State
+// 2. Initial State (add a template property)
 const initialState = {
   user: {
     name: 'John Doe',
@@ -42,10 +43,10 @@ const initialState = {
     skills: {
       title: 'My Skills',
       items: [
-        { category: 'Front-End', name: 'React', level: 80 },
-        { category: 'Front-End', name: 'Bootstrap', level: 90 },
-        { category: 'Back-End', name: 'Node.js', level: 70 },
-        { category: 'Back-End', name: 'Express', level: 65 },
+        { category: 'Front-End', name: 'React', level: 80, icon: 'SiJavascript' },
+        { category: 'Front-End', name: 'Bootstrap', level: 90, icon: 'SiJavascript' },
+        { category: 'Back-End', name: 'Node.js', level: 70, icon: 'SiPython' },
+        { category: 'Back-End', name: 'Express', level: 65, icon: 'SiCplusplus' },
       ],
     },
     testimonials: {
@@ -78,9 +79,10 @@ const initialState = {
   },
   fontFamily: 'Roboto',
   activeSection: 'hero',
+  template: 'Modern', // New property for the selected template
 };
 
-// 3. Reducer Function
+// 3. Reducer Function (add a case for updating the template)
 function portfolioReducer(state, action) {
   switch (action.type) {
     case 'SET_ACTIVE_SECTION':
@@ -106,6 +108,11 @@ function portfolioReducer(state, action) {
         ...state,
         fontFamily: action.payload,
       };
+    case 'UPDATE_TEMPLATE':
+      return {
+        ...state,
+        template: action.payload,
+      };
     default:
       return state;
   }
@@ -113,13 +120,15 @@ function portfolioReducer(state, action) {
 
 // 4. Context Provider Component with Persistence
 export function PortfolioProvider({ children }) {
-  // Initialize state from localStorage if available
-  const [state, dispatch] = useReducer(portfolioReducer, initialState, (initial) => {
-    const persisted = localStorage.getItem('portfolioState');
-    return persisted ? JSON.parse(persisted) : initial;
-  });
+  const [state, dispatch] = useReducer(
+    portfolioReducer,
+    initialState,
+    (initial) => {
+      const persisted = localStorage.getItem('portfolioState');
+      return persisted ? JSON.parse(persisted) : initial;
+    }
+  );
 
-  // Save state changes to localStorage
   useEffect(() => {
     localStorage.setItem('portfolioState', JSON.stringify(state));
   }, [state]);
@@ -135,7 +144,6 @@ PortfolioProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-// 5. Custom Hook to Access Context
 export function usePortfolio() {
   return useContext(PortfolioContext);
 }
