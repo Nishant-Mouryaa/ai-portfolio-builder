@@ -47,6 +47,7 @@ function LivePreview() {
     <div
       className={`live-preview template-${selectedTemplate.toLowerCase()}`}
       style={{
+        
         fontFamily: fontFamily,
         '--primary-color': colors.primary,
         '--accent-color': colors.accent,

@@ -78,6 +78,8 @@ const initialState = {
     accent: '#6610f2',
   },
   fontFamily: 'Roboto',
+  fontSize: 16,           // default font size in pixels
+  theme: 'dark',          // 'dark' or 'light'
   activeSection: 'hero',
   template: 'Modern', // New property for the selected template
 };

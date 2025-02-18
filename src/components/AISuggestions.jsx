@@ -1,6 +1,6 @@
-// components/AISuggestions.js
+// components/AISuggestions.jsx
 import React, { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { usePortfolio } from '../context/PortfolioContext';
 import './AISuggestions.css';
 
@@ -9,58 +9,94 @@ function AISuggestions() {
   const { activeSection, sections } = state;
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState('');
+  const [error, setError] = useState('');
+  const [targetField, setTargetField] = useState('title'); // default field
 
-  // Function to simulate an API call for AI suggestions
-  const handleSuggest = async () => {
-    setLoading(true);
-    const currentSection = sections[activeSection];
-    // Build a prompt (in a real app, you might use this prompt to call an AI API)
-    const prompt = `Suggest content for the ${activeSection} section. Current content: ${JSON.stringify(
-      currentSection
-    )}`;
-
-    // Simulate an API call with a timeout (replace with your API call)
-    setTimeout(() => {
-      let fakeSuggestion = '';
-      switch (activeSection) {
-        case 'hero':
-          fakeSuggestion =
-            "AI Suggestion: Welcome to my innovative portfolio. I'm a creative developer with a passion for cutting-edge technologies.";
-          break;
-        case 'projects':
-          fakeSuggestion =
-            "AI Suggestion: Showcase your best work—each project should tell a story and highlight your unique skills.";
-          break;
-        case 'skills':
-          fakeSuggestion =
-            "AI Suggestion: Highlight your core competencies and technical expertise, along with proficiency levels.";
-          break;
-        case 'testimonials':
-          fakeSuggestion =
-            "AI Suggestion: Let your satisfied clients speak for you with heartfelt testimonials that build trust.";
-          break;
-        case 'contact':
-          fakeSuggestion =
-            "AI Suggestion: Make it easy to connect with you—provide clear contact details and a friendly call-to-action.";
-          break;
-        default:
-          fakeSuggestion = "AI Suggestion: Update your content here.";
-      }
-      setSuggestion(fakeSuggestion);
-      setLoading(false);
-    }, 1500);
+  // Predefined suggestions for each section and field.
+  const suggestions = {
+    hero: {
+      title: [
+        "Innovative Portfolio of a Creative Visionary",
+        "Digital Storytelling in Motion",
+        "Crafting Experiences Through Code"
+      ],
+      subtitle: [
+        "Where creativity meets technology.",
+        "Turning ideas into reality.",
+        "Pushing the boundaries of digital innovation."
+      ]
+    },
+    projects: {
+      title: [
+        "Featured Projects",
+        "My Latest Creations",
+        "Showcase of Excellence"
+      ],
+      description: [
+        "A brief overview of my project achievements.",
+        "Highlighting innovative work in action.",
+        "Projects that define my journey."
+      ]
+    },
+    skills: {
+      title: [
+        "Core Competencies",
+        "Technical Expertise",
+        "Skillset Overview"
+      ]
+    },
+    testimonials: {
+      name: [
+        "Alex Johnson",
+        "Jamie Lee",
+        "Taylor Smith"
+      ],
+      feedback: [
+        "Outstanding work and dedication.",
+        "A true professional with a creative spark.",
+        "Transformed our project with innovative ideas."
+      ]
+    },
+    contact: {
+      title: [
+        "Get in Touch",
+        "Let's Connect",
+        "Contact Me"
+      ]
+    }
   };
 
-  // Function to apply the suggestion (for example, update the title field)
+  // Simulated suggestion generation function.
+  const handleSuggest = () => {
+    setLoading(true);
+    setError('');
+    
+    // Retrieve the current section data for debugging if needed.
+    const currentSection = sections[activeSection];
+
+    // Check if we have suggestions for the active section and target field.
+    if (!suggestions[activeSection] || !suggestions[activeSection][targetField]) {
+      setError("No suggestions available for this section/field.");
+      setLoading(false);
+      return;
+    }
+
+    const possibleSuggestions = suggestions[activeSection][targetField];
+    // Pick a random suggestion.
+    const randomIndex = Math.floor(Math.random() * possibleSuggestions.length);
+    const generatedSuggestion = possibleSuggestions[randomIndex];
+
+    setSuggestion(generatedSuggestion);
+    setLoading(false);
+  };
+
   const applySuggestion = () => {
-    // Here we simply update the title of the current section with the suggestion.
-    // In a real scenario, you could apply suggestions to multiple fields.
     dispatch({
       type: 'UPDATE_SECTION_CONTENT',
       payload: {
         section: activeSection,
-        data: { title: suggestion },
-      },
+        data: { [targetField]: suggestion }
+      }
     });
     setSuggestion('');
   };
@@ -70,14 +106,50 @@ function AISuggestions() {
       <h5>
         AI Suggestions for {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
       </h5>
+      
+      <Form.Group className="mb-2">
+        <Form.Label>Apply suggestion to:</Form.Label>
+        <Form.Select
+          value={targetField}
+          onChange={(e) => setTargetField(e.target.value)}
+        >
+          {activeSection === 'hero' && (
+            <>
+              <option value="title">Title</option>
+              <option value="subtitle">Subtitle</option>
+            </>
+          )}
+          {activeSection === 'projects' && (
+            <>
+              <option value="title">Project Title</option>
+              <option value="description">Project Description</option>
+            </>
+          )}
+          {activeSection === 'skills' && <option value="title">Skill Title</option>}
+          {activeSection === 'testimonials' && (
+            <>
+              <option value="name">Name</option>
+              <option value="feedback">Feedback</option>
+            </>
+          )}
+          {activeSection === 'contact' && <option value="title">Contact Title</option>}
+        </Form.Select>
+      </Form.Group>
+
       <Button variant="light" onClick={handleSuggest} disabled={loading}>
         {loading ? 'Loading...' : 'Get AI Suggestion'}
       </Button>
+
+      {error && <p className="mt-2 text-danger">{error}</p>}
+
       {suggestion && (
         <div className="mt-3">
           <p>{suggestion}</p>
           <Button variant="primary" onClick={applySuggestion}>
             Apply Suggestion
+          </Button>
+          <Button variant="outline-light" onClick={() => setSuggestion('')} className="ms-2">
+            Clear
           </Button>
         </div>
       )}
@@ -86,5 +158,3 @@ function AISuggestions() {
 }
 
 export default AISuggestions;
- 
- 

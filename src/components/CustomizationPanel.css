@@ -1,10 +1,18 @@
+/* components/CustomizationPanel.css */
 .customization-panel {
-  border: 1px solid #333;
-  border-radius: 0.5rem;
-}
-.customization-panel .form-select,
-.customization-panel .form-control {
-  background-color: #1a1a1a;
-  color: #fff;
   border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.customization-panel h5 {
+  margin-bottom: 1rem;
+}
+
+.customization-panel .form-label {
+  font-weight: bold;
+}
+
+.customization-panel .list-group-item {
+  cursor: move;
 }
