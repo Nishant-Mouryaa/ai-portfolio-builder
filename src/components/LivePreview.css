@@ -111,6 +111,7 @@
 }
 .template-modern .hero-section {
   background-color: #e9ecef;
+  color: #343a40;
 }
 
 /* Creative Template */
@@ -131,4 +132,6 @@
 }
 .template-classic .hero-section {
   background-color: #ddd;
+  color: #333;
+
 }
